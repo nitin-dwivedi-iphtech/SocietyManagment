@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24902" systemVersion="25F84" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Complaint" representedClassName="Complaint" syncable="YES" codeGenerationType="class">
+        <attribute name="category" optional="YES" attributeType="String"/>
+        <attribute name="desc" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="URI"/>
+        <attribute name="personId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="resolved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <relationship name="profile_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Profile" inverseName="complaint_relation" inverseEntity="Profile"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="Profile" representedClassName="Profile" syncable="YES" codeGenerationType="class">
         <attribute name="dob" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="emergency_no" optional="YES" attributeType="String"/>
@@ -8,6 +23,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="phone" optional="YES" attributeType="String"/>
+        <relationship name="complaint_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Complaint" inverseName="profile_relation" inverseEntity="Complaint"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -17,6 +33,7 @@
     <entity name="Visitor" representedClassName="Visitor" syncable="YES" codeGenerationType="class">
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="arrival_time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exited" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="flat_no" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="inside" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

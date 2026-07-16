@@ -5,7 +5,7 @@
 //  Created by iPHTech 40 on 15/07/26.
 //
 
-import CoreData
+internal import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -26,13 +26,23 @@ struct PersistenceController {
         addDummyData(container.viewContext)
     }
     
-    private func addDummyData(_ context: NSManagedObjectContext) {
+    /*
+        add dummy data for whole app
+    */
+     private func addDummyData(_ context: NSManagedObjectContext) {
         
         let request:NSFetchRequest<Profile> = NSFetchRequest<Profile>(entityName: "Profile")
+        let visitorRequest:NSFetchRequest<Visitor> = NSFetchRequest<Visitor>(entityName: "Visitor")
+        let complainRequest:NSFetchRequest<Complaint> = NSFetchRequest<Complaint>(entityName: "Complaint")
         request.fetchLimit = 1
         do{
             try Profile.createDummyProfile(viewContext: context)
-            try Visitor.createDummyVisitor(viewContext: context)
+            if try context.count(for: visitorRequest) == 0{
+                try Visitor.createDummyVisitor(viewContext: context)
+            }
+            if try context.count(for: complainRequest) == 0{
+                try Complaint.createDummyComplaint(context: context)
+            }
         } catch{
             print("dummy data is not initalized")
         }

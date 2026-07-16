@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import CoreData
+internal import CoreData
 
 struct DashBoardView: View {
     @ObservedObject var profile:Profile

@@ -1,147 +1,189 @@
-//
-//  VisitorView.swift
-//  SocietyManagmentApp
-//
-//  Created by iPHTech 40 on 15/07/26.
-//
-
 import SwiftUI
+internal import CoreData
 
 struct VisitorView: View {
-    
     var visitors: FetchedResults<Visitor>
+    
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var searchText: String = ""
-    @State var selectedPill:VisitorEnum = .all
+    @State private var selectedPill: VisitorEnum = .all
+    @State private var showAddVisitor: Bool = false
+    
+    @State private var refreshTrigger: Bool = false
+    private var filteredVisitors: [Visitor] {
+        
+        let _ = refreshTrigger
+        let cleanArray = Array(visitors)
+        
+        switch selectedPill {
+        case .all:
+            return cleanArray
+            
+        case .expected:
+            return cleanArray.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }
+            
+        case .inside:
+            return cleanArray.filter { $0.inside && !$0.exited }
+            
+        case .exited:
+            return cleanArray.filter { !$0.inside  && $0.exited && ($0.arrival_time ?? Date()) < Date() }
+        }
+    }
+    
+    private var searchFilteredVisitors: [Visitor] {
+        let _ = refreshTrigger
+        guard !searchText.isEmpty else { return filteredVisitors }
+        
+        let lowercasedQuery = searchText.lowercased()
+        
+        let filtered: [Visitor] = filteredVisitors.filter {
+            $0.name?.lowercased().contains(lowercasedQuery) ?? false
+        }
+        
+        return filtered
+    }
     
     var body: some View {
-        VStack(alignment:.leading){
-            VStack(alignment:.leading){
-                Text("Visitors")
-                    .font(.title)
-                    .bold()
-                Text("1 currently inside")
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Visitors")
+                        .font(.system(.title, design: .rounded))
+                        .fontWeight(.bold)
+                    
+                    Text("\(visitors.filter { $0.inside }.count) currently inside")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .id("\(visitors.count)-\(visitors.filter { $0.inside }.count)")
+                }
+                Spacer()
                 
+                Button(action: {
+                    showAddVisitor = true
+                }) {
+                    Image(systemName: "person.badge.plus")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.blue)
+                        .padding(10)
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(Circle())
+                }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            
+            CustomSearchView(searchText: $searchText)
+            
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 5) {
+                HStack(spacing: 10) {
                     ForEach(VisitorEnum.allCases) { filter in
-                        PillView(title: filter.id, count: filter.count, isSelected: selectedPill == filter)
-                            .onTapGesture{
+                        PillView(
+                            title: filter.rawValue,
+                            count: getDynamicCount(for: filter),
+                            isSelected: selectedPill == filter
+                        )
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 selectedPill = filter
                             }
+                        }
                     }
                 }
-            }.padding(.vertical,10)
+                .padding(.horizontal, 20)
+            }
+            .padding(.vertical, 16)
             
-            ScrollView{
-                VStack{
-                    ForEach(visitors) { visitor in
-                        VisitorListView(visitor: visitor)
-                        
-                    }
+            List {
+                ForEach(searchFilteredVisitors) { visitor in
+                    VisitorListView(visitor: visitor)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            if visitor.inside {
+                                Button {
+                                    withAnimation(.spring()) {
+                                        visitor.inside = false
+                                        visitor.exited = true
+                                        viewContext.saveData()
+                                        refreshTrigger.toggle()
+                                    }
+                                } label: {
+                                    Label("Exit", systemImage: "door.left.hand.open")
+                                }
+                                .tint(.orange)
+                            }
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            if !visitor.inside && !visitor.exited {
+                                Button {
+                                    withAnimation(.spring()) {
+                                        visitor.inside = true
+                                        visitor.exited = false
+                                        viewContext.saveData()
+                                        refreshTrigger.toggle()
+                                    }
+                                } label: {
+                                    Label("Entry", systemImage: "door.right.hand.open")
+                                }
+                                .tint(.green)
+                            }
+                        }
                 }
             }
-            Spacer()
+            .listStyle(.plain)
+            .background(Color(.systemGroupedBackground).opacity(0.4))
+        }
+        .sheet(isPresented: $showAddVisitor) {
+            AddVisitorView()
         }
         .navigationBarHidden(true)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
+    }
+    
+    private func getDynamicCount(for filter: VisitorEnum) -> Int {
+        
+        let _ = refreshTrigger
+        let cleanArray = Array(visitors)
+        switch filter {
+        case .all:
+            return cleanArray.count
+        case .expected:
+            return cleanArray.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }.count
+        case .inside:
+            return cleanArray.filter { $0.inside && !$0.exited }.count
+        case .exited:
+            return cleanArray.filter { !$0.inside && $0.exited && ($0.arrival_time ?? Date()) < Date() }.count
+        }
     }
 }
 
-struct VisitorListView: View {
-    @ObservedObject var visitor: Visitor
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Status Indicator (Green for Inside, Gray for Checked Out)
-            Circle()
-                .fill(visitor.inside ? Color.green : Color.gray.opacity(0.6))
-                .frame(width: 12, height: 12)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    // Visitor Name
-                    Text(visitor.name ?? "Unknown Visitor")
-                        .font(.body)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                    
-                    // Flat Number Tag
-                    Text(visitor.flat_no ?? "N/A")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.blue)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(Capsule())
-                }
-                
-                // Purpose of Visit
-                Text("Purpose: \(visitor.purpose ?? "N/A")")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                
-                // Vehicle Number (if available)
-                if let vehicleNo = visitor.vehicle_no, !vehicleNo.isEmpty {
-                    Text("Vehicle: \(vehicleNo)")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
-                }
-            }
-            
-            // Arrival Time Format
-            if let arrivalTime = visitor.arrival_time {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(arrivalTime, style: .time)
-                        .font(.footnote)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                    
-                    Text(arrivalTime, style: .date)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.04), radius: 5, x: 0, y: 2)
-        .padding(.horizontal, 2)
-    }
-}
 
 struct PillView: View {
     var title: String
     var count: Int
-    var isSelected:Bool
+    var isSelected: Bool
     
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.white)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundColor(isSelected ? .white : .primary)
             
             Text("\(count)")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.white)
+                .padding(.vertical, 3)
+                .background(isSelected ? .white.opacity(0.2) : Color(.secondarySystemBackground))
+                .foregroundColor(isSelected ? .white : .secondary)
                 .clipShape(Capsule())
-                .foregroundColor(.blue)
         }
-        .frame(minWidth:80)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(isSelected ? Color.blue : Color.gray)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(isSelected ? Color.blue : Color(.systemBackground))
         .clipShape(Capsule())
+        .shadow(color: isSelected ? Color.blue.opacity(0.25) : Color.black.opacity(0.02), radius: 6, x: 0, y: 3)
     }
 }
-
-//#Preview {
-//    let visitor = Visitor()
-//    VisitorView(visitors: visitor)
-//}

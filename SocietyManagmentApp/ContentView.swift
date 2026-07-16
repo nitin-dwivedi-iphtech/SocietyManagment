@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import CoreData
+internal import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -21,35 +21,52 @@ struct ContentView: View {
         sortDescriptors: []
     ) var visitors: FetchedResults<Visitor>
     
+    @FetchRequest(
+        entity: Complaint.entity(),
+        sortDescriptors: []
+    ) var complaints: FetchedResults<Complaint>
+    
     @State var selectedTabView:Int = 0
     
     var body: some View {
         let validProfile = profiles.first
         
         TabView(selection: $selectedTabView){
-            NavigationView{
-                if let profile = validProfile{
+            if let profile = validProfile{
+                
+                // DashBoard
+                NavigationView{
                     DashBoardView(profile: profile)
-                } else{
-                    Text("Loading")
                 }
+                
+                .navigationBarHidden(false)
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(0)
+                
+                // Visitor
+                NavigationView{
+                    VisitorView(visitors: visitors)
+                }
+                .tabItem{
+                    Label("Visitor",systemImage: "ticket.fill")
+                }
+                .tag(1)
+                
+                // Complaints
+                NavigationView{
+                    ComplaintView(profile: profile, complaints: complaints)
+                }
+                .tabItem{
+                    Label("Complaints", systemImage: "exclamationmark.bubble.fill")
+                }
+                .tag(2)
             }
-            .navigationBarHidden(false)
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
+            else{
+                Text("Loading")
             }
-            .tag(0)
-            
-            NavigationView{
-                VisitorView(visitors: visitors)
-            }
-            .tabItem{
-                Label("Visitor",systemImage: "ticket.fill")
-            }
-            .tag(1)
-            
         }
-        
     }
 }
 
