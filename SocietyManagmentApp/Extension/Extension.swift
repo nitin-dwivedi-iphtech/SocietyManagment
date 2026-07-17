@@ -19,15 +19,70 @@ extension NSManagedObjectContext {
     }
 }
 
+extension Date {
+    func toMonthYearString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: self)
+    }
+}
+
+extension String {
+    func toMonthYearDate() -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.date(from: self)
+    }
+}
+
 extension Profile {
     static func createDummyProfile(viewContext: NSManagedObjectContext) throws {
         let profile = Profile(context: viewContext)
+        let residentId = UUID()
+        
+        profile.id = residentId
         profile.name = "Nitin Dwivedi"
-        profile.dob = Date()
-        profile.emergency_no = "14784562358"
+        profile.flat_no = "B-545"
         profile.family_members = 4
-        profile.flat_no = "197/85"
-        profile.id = UUID()
+        profile.emergency_no = "14784562358"
+        profile.dob = Calendar.current.date(from: DateComponents(year: 1995, month: 8, day: 15))
+        profile.phone = "8452145985"
+        
+        let recordsData: [(month: String, amount: Double, status: String, dueDay: Int, dueMonth: Int, isPaid: Bool, receipt: String?)] = [
+            ("July 2026", 3500.0, "Unpaid", 10, 7, false, nil),
+            ("June 2026", 3500.0, "Paid", 10, 6, true, "REC-2026-0699"),
+            ("May 2026", 3500.0, "Paid", 10, 5, true, "REC-2026-0542"),
+            ("April 2026", 3200.0, "Paid", 10, 4, true, "REC-2026-0411")
+        ]
+        
+        for record in recordsData {
+            let maintenance = Maintenance(context: viewContext)
+            maintenance.id = UUID()
+            maintenance.personId = residentId
+            maintenance.billMonth = record.month.toMonthYearDate()  ?? Date()
+            maintenance.amount = record.amount
+            maintenance.status = record.status
+            
+            var dueComponents = DateComponents()
+            dueComponents.year = 2026
+            dueComponents.month = record.dueMonth
+            dueComponents.day = record.dueDay
+            maintenance.dueDate = Calendar.current.date(from: dueComponents)
+            maintenance.isPaid = record.isPaid
+            
+            if record.isPaid {
+                maintenance.receiptNo = record.receipt
+                maintenance.transactionId = UUID()
+                
+                var payComponents = DateComponents()
+                payComponents.year = 2026
+                payComponents.month = record.dueMonth
+                payComponents.day = record.dueDay - 2
+                maintenance.paymentDate = Calendar.current.date(from: payComponents)
+            }
+            
+            maintenance.profile_maintain_relation = profile
+        }
         
         viewContext.saveData()
     }
@@ -98,7 +153,7 @@ extension Complaint {
         for sample in sampleComplaints {
             let complaint = Complaint(context: context)
             complaint.id = UUID()
-            complaint.personId = UUID() 
+            complaint.personId = UUID()
             complaint.desc = sample.desc
             complaint.status = sample.status
             complaint.resolved = sample.resolved

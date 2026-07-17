@@ -10,6 +10,7 @@ internal import CoreData
 
 struct DashBoardView: View {
     @ObservedObject var profile:Profile
+    @Binding var selectedTabView:Int
     
     var body: some View {
         ScrollView{
@@ -28,7 +29,7 @@ struct DashBoardView: View {
                     .padding(.horizontal)
                 
                 
-                MaintenanceRowView()
+                MaintenanceRowView(selectedTabView:$selectedTabView)
                 
                 AmenitiesColumnView()
                 
@@ -41,16 +42,10 @@ struct DashBoardView: View {
     }
 }
 
-struct UpwardCard:View{
-    var body: some View{
-        ZStack{
-            
-        }
-    }
-}
 
-#Preview {
-    let mockProfile = Profile()
-    mockProfile.name = "John Doe"
-   return DashBoardView(profile: mockProfile).preferredColorScheme(.dark)
-}
+
+//#Preview {
+//    let mockProfile = Profile()
+//    mockProfile.name = "John Doe"
+//   return DashBoardView(profile: mockProfile).preferredColorScheme(.dark)
+//}

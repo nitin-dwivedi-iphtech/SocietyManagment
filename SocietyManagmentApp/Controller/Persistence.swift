@@ -31,12 +31,13 @@ struct PersistenceController {
     */
      private func addDummyData(_ context: NSManagedObjectContext) {
         
-        let request:NSFetchRequest<Profile> = NSFetchRequest<Profile>(entityName: "Profile")
+        let profileRequest:NSFetchRequest<Profile> = NSFetchRequest<Profile>(entityName: "Profile")
         let visitorRequest:NSFetchRequest<Visitor> = NSFetchRequest<Visitor>(entityName: "Visitor")
         let complainRequest:NSFetchRequest<Complaint> = NSFetchRequest<Complaint>(entityName: "Complaint")
-        request.fetchLimit = 1
         do{
-            try Profile.createDummyProfile(viewContext: context)
+            if try context.count(for: profileRequest) == 0{
+                try Profile.createDummyProfile(viewContext: context)
+            }
             if try context.count(for: visitorRequest) == 0{
                 try Visitor.createDummyVisitor(viewContext: context)
             }

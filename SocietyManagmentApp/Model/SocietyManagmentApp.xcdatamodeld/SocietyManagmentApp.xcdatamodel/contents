@@ -15,6 +15,19 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="Maintenance" representedClassName="Maintenance" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="billMonth" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isPaid" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="paymentDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="personId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="receiptNo" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="transactionId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="profile_maintain_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Profile" inverseName="maintenance_relation" inverseEntity="Profile"/>
+    </entity>
     <entity name="Profile" representedClassName="Profile" syncable="YES" codeGenerationType="class">
         <attribute name="dob" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="emergency_no" optional="YES" attributeType="String"/>
@@ -24,6 +37,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="phone" optional="YES" attributeType="String"/>
         <relationship name="complaint_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Complaint" inverseName="profile_relation" inverseEntity="Complaint"/>
+        <relationship name="maintenance_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Maintenance" inverseName="profile_maintain_relation" inverseEntity="Maintenance"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>

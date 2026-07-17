@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MaintenanceRowView: View {
+    
+    @Binding var selectedTabView:Int
     var body: some View {
         VStack(alignment:.leading){
             HStack {
@@ -18,16 +20,18 @@ struct MaintenanceRowView: View {
                 Image(systemName: "ellipsis")
                     .font(.title3)
                     .foregroundColor(.secondary)
+                    .onTapGesture {
+                        selectedTabView = 3
+                    }
             }
-            MaintenanceSubRowView()
-            MaintenanceSubRowView()
-            MaintenanceSubRowView()
+            MaintenanceSubRowView(selectedTabView: $selectedTabView)
         }
         .padding()
     }
 }
 
 struct MaintenanceSubRowView:View{
+    @Binding var selectedTabView:Int
     var body: some View{
         HStack{
             Image(systemName: "creditcard.fill")
@@ -42,7 +46,7 @@ struct MaintenanceSubRowView:View{
             }
             Spacer()
             Button(action:{
-                
+                selectedTabView = 3
             }){
                 Text("Pay")
                     .font(.system(size: 12))
@@ -58,6 +62,6 @@ struct MaintenanceSubRowView:View{
     }
 }
 
-#Preview {
-    MaintenanceRowView()
-}
+//#Preview {
+//    MaintenanceRowView()
+//}
