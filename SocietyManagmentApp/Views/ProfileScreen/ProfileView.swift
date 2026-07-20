@@ -9,15 +9,19 @@ import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var profile: Profile
+    @State var showBookingsSheet:Bool = false
+    
     
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
                 HStack {
-                    ProfileHeaderView(profile: profile)
+                    ProfileHeaderView(bookMarkTap: {
+                        showBookingsSheet = true
+                    })
                     Spacer()
                 }
-                .padding(.top, 8)
+                .padding(.top, 5)
                 
                 ProfileCardView(profile: profile)
                 
@@ -80,6 +84,9 @@ struct ProfileView: View {
                 Spacer()
             }
             .padding()
+        }
+        .sheet(isPresented: $showBookingsSheet){
+            BookingView()
         }
     }
 }

@@ -34,9 +34,9 @@ extension String {
         return formatter.date(from: self)
     }
 }
-
 extension Profile {
     static func createDummyProfile(viewContext: NSManagedObjectContext) throws {
+        // 1. CREATE THE PROFILE CARD
         let profile = Profile(context: viewContext)
         let residentId = UUID()
         
@@ -48,6 +48,7 @@ extension Profile {
         profile.dob = Calendar.current.date(from: DateComponents(year: 1995, month: 8, day: 15))
         profile.phone = "8452145985"
         
+        // 2. GENERATE MAINTENANCE RECORDS
         let recordsData: [(month: String, amount: Double, status: String, dueDay: Int, dueMonth: Int, isPaid: Bool, receipt: String?)] = [
             ("July 2026", 3500.0, "Unpaid", 10, 7, false, nil),
             ("June 2026", 3500.0, "Paid", 10, 6, true, "REC-2026-0699"),
@@ -84,8 +85,60 @@ extension Profile {
             maintenance.profile_maintain_relation = profile
         }
         
+        // GENERATE THE AMENITIES
+        let createdAmenities = generateAmenities(viewContext: viewContext)
+        
+        // GENERATE DUMMY BOOKINGS
+        generateBookings(createdAmenities: createdAmenities, viewContext: viewContext, profile: profile)
+        
         viewContext.saveData()
     }
+}
+
+func generateBookings(createdAmenities:[String: Amenities], viewContext: NSManagedObjectContext, profile:Profile){
+    let today = Date()
+    
+    let sampleSlots: [StandardSlots] = [
+        .slot1,
+        .slot3,
+    ]
+    
+    for (_, amenity) in createdAmenities {
+        
+        for slot in sampleSlots {
+            let booking = Bookings(context: viewContext)
+            booking.id = UUID()
+            booking.amenityId = amenity.id
+            booking.profileId = profile.id
+            booking.isExpired = false
+            
+            booking.bookingDate = today
+            booking.timeSlot = slot.rawValue
+            
+            booking.booking_amenities_relation = amenity
+            booking.booking_profile_relation = profile
+        }
+    }
+}
+
+func generateAmenities(viewContext:NSManagedObjectContext)->  [String: Amenities]{
+    let amenitiesConfig = [
+        (name: "gym", address: "Clubhouse 1st Floor"),
+        (name: "pool", address: "Clubhouse Ground Floor Courtyard"),
+        (name: "club", address: "Main Clubhouse Grand Hall")
+    ]
+    
+    var createdAmenities: [String: Amenities] = [:]
+    
+    for config in amenitiesConfig {
+        let amenity = Amenities(context: viewContext)
+        amenity.id = UUID()
+        amenity.name = config.name
+        amenity.address = config.address
+        
+        createdAmenities[config.name] = amenity
+    }
+    return createdAmenities
 }
 
 extension Visitor {

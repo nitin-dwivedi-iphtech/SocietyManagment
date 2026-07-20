@@ -10,6 +10,12 @@ import SwiftUI
 struct MaintenanceRowView: View {
     
     @Binding var selectedTabView:Int
+    var maintenances:FetchedResults<Maintenance>
+    
+    var filterMaintenance:[Maintenance]{
+        maintenances.filter{ !$0.isPaid }
+    }
+    
     var body: some View {
         VStack(alignment:.leading){
             HStack {
@@ -24,7 +30,19 @@ struct MaintenanceRowView: View {
                         selectedTabView = 3
                     }
             }
-            MaintenanceSubRowView(selectedTabView: $selectedTabView)
+            
+            if filterMaintenance.isEmpty{
+                Text("No Pay due!")
+                    .font(.system(size:15))
+                    .frame(maxWidth:.infinity,alignment: .center)
+                    .foregroundStyle(.secondary)
+                    .padding()
+            }
+            else{
+                ForEach(filterMaintenance){ maintenance in
+                    MaintenanceSubRowView(selectedTabView: $selectedTabView)
+                }
+            }
         }
         .padding()
     }

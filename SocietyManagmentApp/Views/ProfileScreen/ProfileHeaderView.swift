@@ -8,21 +8,30 @@
 import SwiftUI
 
 struct ProfileHeaderView: View {
-    @ObservedObject var profile: Profile
+    var bookMarkTap: ()->Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("My Profile")
-                .font(.title)
-                .bold()
-            
-            Text("Resident Details & Security Info")
-                .font(.system(size: 15))
-                .foregroundStyle(.secondary)
+        HStack{
+            VStack(alignment: .leading, spacing: 4) {
+                Text("My Profile")
+                    .font(.title)
+                    .bold()
+                
+                Text("Resident Details & Security Info")
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
+                
+            }
+            Spacer()
+            Image(systemName: "bookmark.fill")
+                .frame(width: 80,height: 80)
+                .onTapGesture {
+                    bookMarkTap()
+                }
         }
     }
 }
-//
-//#Preview {
-//    ProfileHeaderView()
-//}
+
+    //#Preview {
+    //    ProfileHeaderView()
+    //}

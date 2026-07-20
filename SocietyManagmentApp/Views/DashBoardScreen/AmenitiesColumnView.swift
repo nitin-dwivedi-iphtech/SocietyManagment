@@ -6,8 +6,18 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct AmenitiesColumnView: View {
+    @State var isAmenitiesShow: Bool = false
+    @State var selectedAmenities:AmenitiesEnum? = nil
+    @ObservedObject var profile:Profile
+    
+    @FetchRequest(
+        entity: Amenities.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Amenities.name, ascending: true)]
+    ) private var fetchedAmenities: FetchedResults<Amenities>
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -18,26 +28,65 @@ struct AmenitiesColumnView: View {
                 Image(systemName: "ellipsis")
                     .font(.title3)
                     .foregroundColor(.secondary)
-            }.padding()
+                    .onTapGesture {
+                        isAmenitiesShow = true
+                    }
+            }
+            .padding(.horizontal)
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    AmenitiesCardView(name: "Gymnasium", slotsOpen: 8, color: Color.blue, image: "gym")
-                    AmenitiesCardView(name: "Swimming", slotsOpen: 3, color: Color.green, image: "swiming")
-                    AmenitiesCardView(name: "Club House", slotsOpen: 5, color: Color.purple, image: "club_house")
+                    ForEach(AmenitiesEnum.allCases) { amenity in
+                        AmenitiesCardView(
+                            amenity: amenity,
+                            name: amenity.rawValue.capitalized,
+                            slotsOpen: 8,
+                            color: amenity.buttonColor(for: amenity),
+                            image: amenity.image(for: amenity),
+                            showAmenities: {
+                                selectedAmenities = amenity
+                            }
+                        )
+                    }
                 }
                 .padding(.horizontal)
+            }
+        }
+        .sheet(isPresented: $isAmenitiesShow) {
+            NavigationStack {
+                AmenitiesView(profile: profile)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
+        }
+        .sheet(item: $selectedAmenities) { amenity in
+            NavigationStack {
+                if let matchingCoreDataAmenity = fetchedAmenities.first(where: {
+                    $0.name?.lowercased() == amenity.rawValue.lowercased()
+                }) {
+                    AmenitiesDetailView(profile:profile, amenityType: amenity, loadedAmenity: matchingCoreDataAmenity)
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.hidden)
+                } else {
+                    Text("Loading Amenity Details...")
+                        .padding()
+                }
             }
         }
     }
 }
 
 struct AmenitiesCardView: View {
+    
+    var amenity: AmenitiesEnum
     var name: String
     var slotsOpen: Int
     var color: Color
     var image: String
     
     @Environment(\.sizeCategory) var sizeCategory
+    
+    var showAmenities:()-> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -59,7 +108,7 @@ struct AmenitiesCardView: View {
                 }
             
             HStack {
-                Text("\(slotsOpen) slots open")
+                Text("Slots available")
                     .font(.footnote)
                     .foregroundColor(.white)
                     .bold()
@@ -67,9 +116,9 @@ struct AmenitiesCardView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    // Booking action
-                }) {
+                Button(action:{
+                    showAmenities()
+                }){
                     Text("Book")
                         .font(.footnote)
                         .fontWeight(.bold)
@@ -79,6 +128,7 @@ struct AmenitiesCardView: View {
                         .background(color)
                         .clipShape(Capsule())
                 }
+                
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 12)
@@ -88,9 +138,4 @@ struct AmenitiesCardView: View {
         .background(Color.black)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
-}
-
-#Preview {
-    AmenitiesColumnView()
-        .preferredColorScheme(.dark)
 }

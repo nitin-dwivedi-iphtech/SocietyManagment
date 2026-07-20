@@ -58,8 +58,8 @@ struct ContentView: View {
                 
                 
                 // DashBoard
-                NavigationView{
-                    DashBoardView(profile: profile, selectedTabView:$selectedTabView)
+                NavigationStack{
+                    DashBoardView(profile: profile, selectedTabView:$selectedTabView, maintenances: maintenances,visitors: visitors)
                 }
                 
                 .navigationBarHidden(false)

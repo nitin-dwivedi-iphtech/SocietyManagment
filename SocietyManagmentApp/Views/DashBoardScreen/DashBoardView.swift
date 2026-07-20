@@ -11,6 +11,8 @@ internal import CoreData
 struct DashBoardView: View {
     @ObservedObject var profile:Profile
     @Binding var selectedTabView:Int
+    var maintenances:FetchedResults<Maintenance>
+    var visitors:FetchedResults<Visitor>
     
     var body: some View {
         ScrollView{
@@ -25,13 +27,13 @@ struct DashBoardView: View {
                     Spacer()
                 }
                 
-                WelcomeCardView(userName: profile.name ?? "N/A")
+                WelcomeCardView(userName: profile.name ?? "N/A", maintenance: maintenances, visitors: visitors)
                     .padding(.horizontal)
                 
                 
-                MaintenanceRowView(selectedTabView:$selectedTabView)
+                MaintenanceRowView(selectedTabView:$selectedTabView, maintenances: maintenances)
                 
-                AmenitiesColumnView()
+                AmenitiesColumnView(profile:profile)
                 
                 NoticeEventsRowView()
                 
