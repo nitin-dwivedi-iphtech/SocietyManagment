@@ -177,6 +177,18 @@ struct AmenitiesDetailView: View {
         booking.profileId = profile.id
         
         viewContext.saveData()
+        
+        let amenityName = loadedAmenity.name ?? "Amenity"
+        
+        let reminderDate = booking.bookingDate?.addingTimeInterval(-10 * 60)
+        
+        if reminderDate ?? Date() > Date() {
+            NotificationManager.shared.scheduleNotification(
+                title: "Upcoming Booking Reminder!",
+                body: "Your slot for \(amenityName) (\(slotEnum.rawValue)) starts in 10 minutes. It's time to head over!",
+                triggerDate: reminderDate ?? Date()
+            )
+        }
         selectedSlot = nil
     }
 }

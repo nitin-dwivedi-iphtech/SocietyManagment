@@ -161,7 +161,5 @@ struct ProfilePhoneRow: View {
         }
         .padding()
     }
-    
 }
-
 

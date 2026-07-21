@@ -12,6 +12,10 @@ internal import CoreData
 struct SocietyManagmentAppApp: App {
     let persistenceController = PersistenceController.shared
 
+    init(){
+        NotificationManager.shared.requestPermission()
+    }
+    
     var body: some Scene {
         WindowGroup {
             SplashScreenView()

@@ -31,6 +31,16 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="Events" representedClassName="Events" syncable="YES" codeGenerationType="class">
+        <attribute name="category" optional="YES" attributeType="String"/>
+        <attribute name="details" optional="YES" attributeType="String"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="profileId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="events_profile_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Profile" inverseName="profile_events_relation" inverseEntity="Profile"/>
+    </entity>
     <entity name="Maintenance" representedClassName="Maintenance" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="billMonth" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -44,6 +54,17 @@
         <attribute name="transactionId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="profile_maintain_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Profile" inverseName="maintenance_relation" inverseEntity="Profile"/>
     </entity>
+    <entity name="Notices" representedClassName="Notices" syncable="YES" codeGenerationType="class">
+        <attribute name="authorName" optional="YES" attributeType="String"/>
+        <attribute name="body" optional="YES" attributeType="String"/>
+        <attribute name="category" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isImportant" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="postedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="profileId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="notices_profile_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Profile" inverseName="profile_notices_relation" inverseEntity="Profile"/>
+    </entity>
     <entity name="Profile" representedClassName="Profile" syncable="YES" codeGenerationType="class">
         <attribute name="dob" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="emergency_no" optional="YES" attributeType="String"/>
@@ -55,6 +76,8 @@
         <relationship name="complaint_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Complaint" inverseName="profile_relation" inverseEntity="Complaint"/>
         <relationship name="maintenance_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Maintenance" inverseName="profile_maintain_relation" inverseEntity="Maintenance"/>
         <relationship name="profile_booking_relation" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Bookings" inverseName="booking_profile_relation" inverseEntity="Bookings"/>
+        <relationship name="profile_events_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Events" inverseName="events_profile_relation" inverseEntity="Events"/>
+        <relationship name="profile_notices_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Notices" inverseName="notices_profile_relation" inverseEntity="Notices"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>

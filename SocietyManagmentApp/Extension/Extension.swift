@@ -91,7 +91,79 @@ extension Profile {
         // GENERATE DUMMY BOOKINGS
         generateBookings(createdAmenities: createdAmenities, viewContext: viewContext, profile: profile)
         
+        generateNotices(viewContext: viewContext, profile: profile)
+        generateEvents(viewContext: viewContext, profile: profile)
+        
         viewContext.saveData()
+    }
+}
+
+func generateNotices(viewContext: NSManagedObjectContext, profile: Profile) {
+    let dummyNotices = [
+        (
+            title: "Emergency Water Outage",
+            body: "Main line repair works will begin at 10 AM tomorrow. Water supply will remain shut until 2 PM. Please store sufficient water.",
+            category: NoticesEnum.urgent.rawValue,
+            aImportant: true,
+            authorName: "Management Office"
+        ),
+        (
+            title: "Annual General Body Meeting",
+            body: "The AGM is scheduled for the upcoming weekend at Community Center Hall A to discuss society maintenance budgets.",
+            category: NoticesEnum.general.rawValue,
+            aImportant: false,
+            authorName: "Society Secretary"
+        ),
+        (
+            title: "Elevator Maintenance in Block B",
+            body: "Lift #2 in Block B will be offline for safety inspection between 1 PM and 4 PM today.",
+            category: NoticesEnum.urgent.rawValue,
+            aImportant: true,
+            authorName: "Facility Manager"
+        )
+    ]
+    
+    for item in dummyNotices {
+        let notice = Notices(context: viewContext)
+        notice.id = UUID()
+        notice.profileId = profile.id
+        notice.title = item.title
+        notice.body = item.body
+        notice.category = item.category
+        notice.isImportant = item.aImportant
+        notice.authorName = item.authorName
+        notice.postedDate = Date()
+    }
+}
+
+func generateEvents(viewContext: NSManagedObjectContext, profile: Profile) {
+    let dummyEvents = [
+        (
+            title: "Monsoon Pool Party",
+            details: "Join us this Sunday at the clubhouse pool for snacks, music, and swimming competitions for kids!",
+            category: NoticesEnum.events.rawValue,
+            startDate: Date().addingTimeInterval(86400 * 2),
+            endDate: Date().addingTimeInterval(86400 * 2 + 14400)
+        ),
+        (
+            title: "Independence Day Flag Hoisting",
+            details: "Flag hoisting ceremony followed by cultural performances by society children at the Main Lawn.",
+            category: NoticesEnum.events.rawValue,
+            startDate: Date().addingTimeInterval(86400 * 10),
+            endDate: Date().addingTimeInterval(86400 * 10 + 7200)
+        )
+    ]
+    
+    for item in dummyEvents {
+        let event = Events(context: viewContext)
+        event.id = UUID()
+        event.profileId = profile.id
+        event.title = item.title
+        event.details = item.details
+        event.category = item.category
+        event.startDate = item.startDate
+        event.endDate = item.endDate
+        event.events_profile_relation = profile
     }
 }
 

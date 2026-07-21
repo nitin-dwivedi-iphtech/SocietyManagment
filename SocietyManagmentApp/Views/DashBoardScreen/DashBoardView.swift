@@ -35,7 +35,7 @@ struct DashBoardView: View {
                 
                 AmenitiesColumnView(profile:profile)
                 
-                NoticeEventsRowView()
+                NoticeEventsRowView(profile:profile)
                 
                 Spacer()
             }
