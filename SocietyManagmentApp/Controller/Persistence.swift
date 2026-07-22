@@ -23,6 +23,7 @@ struct PersistenceController {
             }
         })
         container.viewContext.automaticallyMergesChangesFromParent = true
+        print("Core Data Path: \(NSPersistentContainer.defaultDirectoryURL())")
         addDummyData(container.viewContext)
     }
     

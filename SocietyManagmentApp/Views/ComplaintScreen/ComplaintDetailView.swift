@@ -36,6 +36,21 @@ struct ComplaintDetailView: View {
         }
     }
     
+    private var complaintImage: UIImage? {
+        guard let fileName = complaint.image,
+              let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let currentImageURL = documentsURL.appendingPathComponent(fileName)
+        
+        guard let imageData = try? Data(contentsOf: currentImageURL) else {
+            return nil
+        }
+        
+        return UIImage(data: imageData)
+    }
+    
     var body: some View {
         let _ = refreshTrigger
         
@@ -103,6 +118,16 @@ struct ComplaintDetailView: View {
                     .padding(20)
                     .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(16)
+                    
+                    
+                    if let uiImage = complaintImage {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 220)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
                     
                     HStack(spacing: 12) {
                         Image(systemName: isResolved ? "checkmark.circle.fill" : "clock.fill")

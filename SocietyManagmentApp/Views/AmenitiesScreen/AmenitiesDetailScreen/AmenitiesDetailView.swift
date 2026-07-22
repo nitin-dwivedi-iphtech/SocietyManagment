@@ -100,7 +100,7 @@ struct AmenitiesDetailView: View {
                 )
                 .datePickerStyle(.graphical)
                 .padding(.horizontal)
-                .onChange(of: selectedDate) { _ in
+                .onChange(of: selectedDate) {
                     selectedSlot = nil
                 }
                 
@@ -175,6 +175,7 @@ struct AmenitiesDetailView: View {
         booking.amenityId = loadedAmenity.id
         booking.booking_amenities_relation = loadedAmenity
         booking.profileId = profile.id
+        booking.booking_profile_relation = profile
         
         viewContext.saveData()
         

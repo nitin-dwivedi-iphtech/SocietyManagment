@@ -19,6 +19,10 @@ struct WelcomeCardView: View {
         maintenance.filter{ !$0.isPaid }.reduce(0) { $0 + Int($1.amount) }
     }
     
+    var computedVisitors:Int {
+        visitors.filter{ $0.inside }.count
+    }
+    
     var body: some View {
         VStack(alignment:.leading,spacing:11){
             Text(date,style:.date)
@@ -36,7 +40,7 @@ struct WelcomeCardView: View {
                 .font(.system(size: 20))
             
             HStack(spacing: 10) {
-                BadgeView(value: "\(visitors.filter{ $0.inside }.count)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
+                BadgeView(value: "\(computedVisitors)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
                 BadgeView(value: "3", label: "Open", icon: "envelope.open.fill", color: .blue)
                 BadgeView(value: "\(computedMaintenance)", label: "Due", icon: "exclamationmark.triangle.fill", color: .orange)
             }

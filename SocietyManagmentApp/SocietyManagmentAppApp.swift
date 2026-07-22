@@ -8,6 +8,7 @@
 import SwiftUI
 internal import CoreData
 
+
 @main
 struct SocietyManagmentAppApp: App {
     let persistenceController = PersistenceController.shared

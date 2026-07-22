@@ -6,13 +6,36 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		13777EA83010930E001F6124 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EA73010930E001F6124 /* FirebaseAI */; };
+		13777EAA3010930E001F6124 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EA93010930E001F6124 /* FirebaseAILogic */; };
+		13777EAC3010930E001F6124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EAB3010930E001F6124 /* FirebaseAnalytics */; };
+		13777EAE3010930E001F6124 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EAD3010930E001F6124 /* FirebaseAnalyticsCore */; };
+		13777EB03010930E001F6124 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EAF3010930E001F6124 /* FirebaseAuth */; };
+		13777EB23010930E001F6124 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EB13010930E001F6124 /* FirebaseInAppMessaging-Beta */; };
+		13777EB43010930E001F6124 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 13777EB33010930E001F6124 /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		139A199A30075445001B1ECC /* SocietyManagmentApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SocietyManagmentApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		13777EB73010973E001F6124 /* Exceptions for "SocietyManagmentApp" folder in "SocietyManagmentApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 139A199930075445001B1ECC /* SocietyManagmentApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		139A199C30075445001B1ECC /* SocietyManagmentApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				13777EB73010973E001F6124 /* Exceptions for "SocietyManagmentApp" folder in "SocietyManagmentApp" target */,
+			);
 			path = SocietyManagmentApp;
 			sourceTree = "<group>";
 		};
@@ -23,6 +46,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13777EAA3010930E001F6124 /* FirebaseAILogic in Frameworks */,
+				13777EB03010930E001F6124 /* FirebaseAuth in Frameworks */,
+				13777EB43010930E001F6124 /* FirebaseMessaging in Frameworks */,
+				13777EA83010930E001F6124 /* FirebaseAI in Frameworks */,
+				13777EAC3010930E001F6124 /* FirebaseAnalytics in Frameworks */,
+				13777EAE3010930E001F6124 /* FirebaseAnalyticsCore in Frameworks */,
+				13777EB23010930E001F6124 /* FirebaseInAppMessaging-Beta in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +95,13 @@
 			);
 			name = SocietyManagmentApp;
 			packageProductDependencies = (
+				13777EA73010930E001F6124 /* FirebaseAI */,
+				13777EA93010930E001F6124 /* FirebaseAILogic */,
+				13777EAB3010930E001F6124 /* FirebaseAnalytics */,
+				13777EAD3010930E001F6124 /* FirebaseAnalyticsCore */,
+				13777EAF3010930E001F6124 /* FirebaseAuth */,
+				13777EB13010930E001F6124 /* FirebaseInAppMessaging-Beta */,
+				13777EB33010930E001F6124 /* FirebaseMessaging */,
 			);
 			productName = SocietyManagmentApp;
 			productReference = 139A199A30075445001B1ECC /* SocietyManagmentApp.app */;
@@ -94,6 +131,9 @@
 			);
 			mainGroup = 139A199130075444001B1ECC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 139A199B30075445001B1ECC /* Products */;
 			projectDirPath = "";
@@ -249,10 +289,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SocietyManagmentApp/SocietyManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B6WL9U8JTW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SocietyManagmentApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -280,10 +323,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SocietyManagmentApp/SocietyManagmentApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B6WL9U8JTW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SocietyManagmentApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -328,6 +374,55 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		13777EA73010930E001F6124 /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		13777EA93010930E001F6124 /* FirebaseAILogic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAILogic;
+		};
+		13777EAB3010930E001F6124 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		13777EAD3010930E001F6124 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		13777EAF3010930E001F6124 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		13777EB13010930E001F6124 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
+		};
+		13777EB33010930E001F6124 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13777EA63010930E001F6124 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 139A199230075444001B1ECC /* Project object */;
 }

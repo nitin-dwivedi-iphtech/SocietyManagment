@@ -89,7 +89,7 @@ extension Profile {
         let createdAmenities = generateAmenities(viewContext: viewContext)
         
         // GENERATE DUMMY BOOKINGS
-        generateBookings(createdAmenities: createdAmenities, viewContext: viewContext, profile: profile)
+        generateBookings(amenitiesList: createdAmenities, viewContext: viewContext, profile: profile)
         
         generateNotices(viewContext: viewContext, profile: profile)
         generateEvents(viewContext: viewContext, profile: profile)
@@ -167,23 +167,17 @@ func generateEvents(viewContext: NSManagedObjectContext, profile: Profile) {
     }
 }
 
-func generateBookings(createdAmenities:[String: Amenities], viewContext: NSManagedObjectContext, profile:Profile){
+func generateBookings(amenitiesList: [Amenities], viewContext: NSManagedObjectContext, profile: Profile) {
     let today = Date()
+    let sampleSlots: [StandardSlots] = [.slot1, .slot3]
     
-    let sampleSlots: [StandardSlots] = [
-        .slot1,
-        .slot3,
-    ]
-    
-    for (_, amenity) in createdAmenities {
-        
+    for amenity in amenitiesList {
         for slot in sampleSlots {
             let booking = Bookings(context: viewContext)
             booking.id = UUID()
             booking.amenityId = amenity.id
             booking.profileId = profile.id
             booking.isExpired = false
-            
             booking.bookingDate = today
             booking.timeSlot = slot.rawValue
             
@@ -193,26 +187,25 @@ func generateBookings(createdAmenities:[String: Amenities], viewContext: NSManag
     }
 }
 
-func generateAmenities(viewContext:NSManagedObjectContext)->  [String: Amenities]{
+func generateAmenities(viewContext: NSManagedObjectContext) -> [Amenities] {
     let amenitiesConfig = [
         (name: "gym", address: "Clubhouse 1st Floor"),
         (name: "pool", address: "Clubhouse Ground Floor Courtyard"),
         (name: "club", address: "Main Clubhouse Grand Hall")
     ]
     
-    var createdAmenities: [String: Amenities] = [:]
+    var list: [Amenities] = []
     
     for config in amenitiesConfig {
         let amenity = Amenities(context: viewContext)
         amenity.id = UUID()
         amenity.name = config.name
         amenity.address = config.address
-        
-        createdAmenities[config.name] = amenity
+        list.append(amenity)
     }
-    return createdAmenities
+    
+    return list
 }
-
 extension Visitor {
     static func createDummyVisitor(viewContext: NSManagedObjectContext) throws {
         let twoHoursAgo = Date().addingTimeInterval(-7200)

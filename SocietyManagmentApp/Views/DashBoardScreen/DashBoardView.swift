@@ -15,7 +15,7 @@ struct DashBoardView: View {
     var visitors:FetchedResults<Visitor>
     
     var body: some View {
-        ScrollView{
+        ScrollView(showsIndicators:false){
             VStack(spacing:10){
                 HStack{
                     VStack(alignment:.leading){

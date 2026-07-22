@@ -4,7 +4,7 @@
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="amenities_booking_relation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bookings" inverseName="booking_amenities_relation" inverseEntity="Bookings"/>
+        <relationship name="amenities_booking_relation" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Bookings" inverseName="booking_amenities_relation" inverseEntity="Bookings"/>
     </entity>
     <entity name="Bookings" representedClassName="Bookings" syncable="YES" codeGenerationType="class">
         <attribute name="amenityId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -20,7 +20,7 @@
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="desc" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="image" optional="YES" attributeType="URI"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="personId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="resolved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="status" optional="YES" attributeType="String"/>
