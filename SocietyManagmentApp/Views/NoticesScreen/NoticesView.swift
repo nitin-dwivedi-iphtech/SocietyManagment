@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct NoticesView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     @State var selectedNoticeEnum:NoticesEnum = .all
     @State var showAddNotice:Bool = false
     @ObservedObject var profile:Profile
@@ -65,23 +67,44 @@ struct NoticesView: View {
                     )
                     .frame(maxHeight: .infinity)
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(filteredNotices) { notice in
-                                NavigationLink(destination: NoticeDetailView(notice: notice)) {
-                                    NoticeCardView(notice: notice)
-                                }
-                                .buttonStyle(.plain)
+                    List {
+                        ForEach(filteredNotices) { notice in
+                            NavigationLink(destination: NoticeDetailView(notice: notice)) {
+                                NoticeCardView(notice: notice)
                             }
-                            
-                            ForEach(filteredEvents) { event in
-                                NavigationLink(destination: EventDetailView(event: event)) {
-                                    EventCardView(event: event)
+                            .buttonStyle(.plain)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    deleteItem(notice)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
+                        
+                        ForEach(filteredEvents) { event in
+                            NavigationLink(destination: EventDetailView(event: event)) {
+                                EventCardView(event: event)
+                            }
+                            .buttonStyle(.plain)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    deleteItem(event)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                        
                     }
+                    .listStyle(.inset)
+                    .scrollContentBackground(.hidden)
                 }
                 
                 Spacer()
@@ -91,6 +114,13 @@ struct NoticesView: View {
         .navigationBarHidden(true)
         .sheet(isPresented:$showAddNotice){
             NoticesAddView(profile:profile)
+        }
+    }
+    
+    private func deleteItem<T: NSManagedObject>(_ item: T) {
+        withAnimation {
+            viewContext.delete(item)
+            viewContext.saveData()
         }
     }
 }

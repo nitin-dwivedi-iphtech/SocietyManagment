@@ -34,9 +34,10 @@ extension String {
         return formatter.date(from: self)
     }
 }
+
 extension Profile {
     static func createDummyProfile(viewContext: NSManagedObjectContext) throws {
-        // 1. CREATE THE PROFILE CARD
+        // profile data
         let profile = Profile(context: viewContext)
         let residentId = UUID()
         
@@ -48,7 +49,7 @@ extension Profile {
         profile.dob = Calendar.current.date(from: DateComponents(year: 1995, month: 8, day: 15))
         profile.phone = "8452145985"
         
-        // 2. GENERATE MAINTENANCE RECORDS
+        // generate maintenance data
         let recordsData: [(month: String, amount: Double, status: String, dueDay: Int, dueMonth: Int, isPaid: Bool, receipt: String?)] = [
             ("July 2026", 3500.0, "Unpaid", 10, 7, false, nil),
             ("June 2026", 3500.0, "Paid", 10, 6, true, "REC-2026-0699"),
@@ -85,10 +86,10 @@ extension Profile {
             maintenance.profile_maintain_relation = profile
         }
         
-        // GENERATE THE AMENITIES
+        // generate amenities data
         let createdAmenities = generateAmenities(viewContext: viewContext)
         
-        // GENERATE DUMMY BOOKINGS
+        // generate dummy data
         generateBookings(amenitiesList: createdAmenities, viewContext: viewContext, profile: profile)
         
         generateNotices(viewContext: viewContext, profile: profile)
@@ -206,6 +207,7 @@ func generateAmenities(viewContext: NSManagedObjectContext) -> [Amenities] {
     
     return list
 }
+
 extension Visitor {
     static func createDummyVisitor(viewContext: NSManagedObjectContext) throws {
         let twoHoursAgo = Date().addingTimeInterval(-7200)

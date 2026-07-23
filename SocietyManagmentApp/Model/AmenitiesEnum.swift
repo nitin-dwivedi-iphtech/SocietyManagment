@@ -37,6 +37,4 @@ enum AmenitiesEnum: String, CaseIterable, Identifiable{
         case .pool: return "swiming"
         }
     }
-    
-    
 }

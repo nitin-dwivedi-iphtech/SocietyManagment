@@ -37,9 +37,7 @@ struct ProfileHeaderView: View {
         }
     }
     private func toggleTheme() {
-        withAnimation { if selectedTheme == 0 {
-            selectedTheme = 1
-        }
+        withAnimation {
             selectedTheme = (selectedTheme + 1) % 3
         }
     }

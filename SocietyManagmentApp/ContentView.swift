@@ -10,7 +10,7 @@ internal import CoreData
 
 struct ContentView: View {
     
-    @AppStorage("selectedTheme") private var selectedTheme: Int = 0
+    @AppStorage("selectedTheme") private var selectedTheme: Int = 1
     
     @FetchRequest(
         entity: Profile.entity(),
@@ -38,7 +38,7 @@ struct ContentView: View {
         switch selectedTheme {
         case 1: return .light
         case 2: return .dark
-        default: return nil
+        default: return .none
         }
     }
     
@@ -76,7 +76,7 @@ struct ContentView: View {
                         Label("Home", systemImage: "house.fill")
                     }
                     .tag(2)
-                        
+                    
                     // Maintenance
                     NavigationView {
                         MaintenanceView(maintenances: maintenances, profile: profile)
@@ -100,20 +100,6 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(preferredScheme)
-    }
-    
-    private func toggleTheme() {
-        withAnimation {
-            selectedTheme = (selectedTheme + 1) % 3
-        }
-    }
-    
-    private var themeIcon: String {
-        switch selectedTheme {
-        case 1: return "sun.max.fill"
-        case 2: return "moon.fill"
-        default: return "circle.dashed"
-        }
     }
 }
 

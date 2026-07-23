@@ -15,7 +15,7 @@ struct CustomSearchView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
             
-            TextField("Search complaints...", text: $searchText)
+            TextField("Search...", text: $searchText)
                 .font(.system(.body, design: .rounded))
                 .autocorrectionDisabled()
             

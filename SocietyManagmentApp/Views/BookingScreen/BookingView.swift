@@ -70,6 +70,7 @@ struct BookingView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("My Bookings")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {

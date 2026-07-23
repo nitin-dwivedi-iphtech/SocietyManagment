@@ -40,7 +40,7 @@ struct MaintenanceRowView: View {
             }
             else{
                 ForEach(filterMaintenance){ maintenance in
-                    MaintenanceSubRowView(selectedTabView: $selectedTabView)
+                    MaintenanceSubRowView(selectedTabView: $selectedTabView, maintenance: maintenance)
                 }
             }
         }
@@ -50,16 +50,18 @@ struct MaintenanceRowView: View {
 
 struct MaintenanceSubRowView:View{
     @Binding var selectedTabView:Int
+    @ObservedObject var maintenance:Maintenance
+    
     var body: some View{
         HStack{
             Image(systemName: "creditcard.fill")
                 .font(.system(size: 15))
                 .padding(.trailing,5)
             VStack(alignment:.leading){
-                Text("July Maintenance Due")
+                Text("\(maintenance.billMonth?.toMonthYearString() ?? "N/A") maintenance")
                     .font(.system(size: 13))
                 
-                Text("3000 Due by 10 July")
+                Text("\(maintenance.amount.formatted(.number.precision(.fractionLength(2)))) Due by \(maintenance.dueDate?.toMonthYearString() ?? "N/A")")
                     .font(.system(size: 10))
             }
             Spacer()

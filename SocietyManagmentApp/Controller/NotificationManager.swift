@@ -19,7 +19,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate{
     func requestPermission(){
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.badge,.sound]){ granted, error in
             if granted{
-                print("granted")
+                print("Granted permission for Notification!")
             }
             else if let err = error{
                 print(err)
