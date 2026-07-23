@@ -8,16 +8,12 @@
 import SwiftUI
 
 struct MaintenanceRowView: View {
-    
-    @Binding var selectedTabView:Int
-    var maintenances:FetchedResults<Maintenance>
-    
-    var filterMaintenance:[Maintenance]{
-        maintenances.filter{ !$0.isPaid }
-    }
-    
+
+    @Binding var selectedTabView: Int
+    @ObservedObject var viewModel: DashboardViewModel
+
     var body: some View {
-        VStack(alignment:.leading){
+        VStack(alignment: .leading) {
             HStack {
                 Text("Maintenance")
                     .font(.title2)
@@ -30,16 +26,15 @@ struct MaintenanceRowView: View {
                         selectedTabView = 3
                     }
             }
-            
-            if filterMaintenance.isEmpty{
+
+            if viewModel.unpaidMaintenances.isEmpty {
                 Text("No Pay due!")
-                    .font(.system(size:15))
-                    .frame(maxWidth:.infinity,alignment: .center)
+                    .font(.system(size: 15))
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundStyle(.secondary)
                     .padding()
-            }
-            else{
-                ForEach(filterMaintenance){ maintenance in
+            } else {
+                ForEach(viewModel.unpaidMaintenances) { maintenance in
                     MaintenanceSubRowView(selectedTabView: $selectedTabView, maintenance: maintenance)
                 }
             }
@@ -48,40 +43,36 @@ struct MaintenanceRowView: View {
     }
 }
 
-struct MaintenanceSubRowView:View{
-    @Binding var selectedTabView:Int
-    @ObservedObject var maintenance:Maintenance
-    
-    var body: some View{
-        HStack{
+struct MaintenanceSubRowView: View {
+    @Binding var selectedTabView: Int
+    @ObservedObject var maintenance: Maintenance
+
+    var body: some View {
+        HStack {
             Image(systemName: "creditcard.fill")
                 .font(.system(size: 15))
-                .padding(.trailing,5)
-            VStack(alignment:.leading){
+                .padding(.trailing, 5)
+            VStack(alignment: .leading) {
                 Text("\(maintenance.billMonth?.toMonthYearString() ?? "N/A") maintenance")
                     .font(.system(size: 13))
-                
+
                 Text("\(maintenance.amount.formatted(.number.precision(.fractionLength(2)))) Due by \(maintenance.dueDate?.toMonthYearString() ?? "N/A")")
                     .font(.system(size: 10))
             }
             Spacer()
-            Button(action:{
+            Button(action: {
                 selectedTabView = 3
-            }){
+            }) {
                 Text("Pay")
                     .font(.system(size: 12))
-                    .padding(.all,8)
+                    .padding(.all, 8)
                     .foregroundColor(.white)
-                    .background(Color.orange,in: RoundedRectangle(cornerRadius: 10 ))
+                    .background(Color.orange, in: RoundedRectangle(cornerRadius: 10))
             }
         }
         .padding(.vertical)
-        .padding(.horizontal,20)
+        .padding(.horizontal, 20)
         .background(Color.orange.opacity(0.12))
         .clipShape(Capsule())
     }
 }
-
-//#Preview {
-//    MaintenanceRowView()
-//}

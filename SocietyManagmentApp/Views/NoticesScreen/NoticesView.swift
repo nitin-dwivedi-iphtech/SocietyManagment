@@ -6,51 +6,25 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct NoticesView: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(\.managedObjectContext) private var viewContext
-    @State var selectedNoticeEnum:NoticesEnum = .all
-    @State var showAddNotice:Bool = false
-    @ObservedObject var profile:Profile
-    
-    var notices:FetchedResults<Notices>
-    var events:FetchedResults<Events>
-    
-    var filteredNotices: [Notices] {
-        if selectedNoticeEnum == .all {
-            return Array(notices)
-        } else if selectedNoticeEnum == .events {
-            return []
-        } else {
-            return notices.filter { $0.category == selectedNoticeEnum.rawValue }
-        }
-    }
-    
-    var filteredEvents: [Events] {
-        if selectedNoticeEnum == .all || selectedNoticeEnum == .events {
-            return Array(events)
-        } else {
-            return []
-        }
-    }
-    
-    var isListEmpty: Bool {
-        filteredNotices.isEmpty && filteredEvents.isEmpty
-    }
-    
+    @ObservedObject var profile: Profile
+
+    @StateObject private var viewModel = NoticesViewModel()
+
     var body: some View {
-        NavigationStack{
-            VStack{
-                NoticesHeaderView(onCloseTap: {dismiss()}, onAddTap: {showAddNotice=true})
-                    .frame(maxWidth:.infinity, alignment: .leading)
-                
-                ScrollView(.horizontal, showsIndicators: false){
-                    HStack{
-                        ForEach(NoticesEnum.allCases){ notice in
-                            NoticesPillView( selected: selectedNoticeEnum == notice, title: notice.rawValue, onNoticePillTap: {
-                                selectedNoticeEnum = notice
+        NavigationStack {
+            VStack {
+                NoticesHeaderView(onCloseTap: { dismiss() }, onAddTap: { viewModel.showAddNotice = true })
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(NoticesEnum.allCases) { notice in
+                            NoticesPillView(selected: viewModel.selectedNoticeEnum == notice, title: notice.rawValue, onNoticePillTap: {
+                                viewModel.selectedNoticeEnum = notice
                             })
                         }
                     }
@@ -58,8 +32,8 @@ struct NoticesView: View {
                     .padding(.vertical, 10)
                 }
                 .padding(.horizontal, -16)
-                
-                if isListEmpty {
+
+                if viewModel.isListEmpty {
                     ContentUnavailableView(
                         "No Announcements",
                         systemImage: "bell.slash",
@@ -68,7 +42,7 @@ struct NoticesView: View {
                     .frame(maxHeight: .infinity)
                 } else {
                     List {
-                        ForEach(filteredNotices) { notice in
+                        ForEach(viewModel.filteredNotices) { notice in
                             NavigationLink(destination: NoticeDetailView(notice: notice)) {
                                 NoticeCardView(notice: notice)
                             }
@@ -78,14 +52,14 @@ struct NoticesView: View {
                             .listRowBackground(Color.clear)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    deleteItem(notice)
+                                    viewModel.deleteItem(notice)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
-                        
-                        ForEach(filteredEvents) { event in
+
+                        ForEach(viewModel.filteredEvents) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
                                 EventCardView(event: event)
                             }
@@ -95,32 +69,25 @@ struct NoticesView: View {
                             .listRowBackground(Color.clear)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    deleteItem(event)
+                                    viewModel.deleteItem(event)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
-                        
+
                     }
                     .listStyle(.inset)
                     .scrollContentBackground(.hidden)
                 }
-                
+
                 Spacer()
             }
         }
         .padding()
         .navigationBarHidden(true)
-        .sheet(isPresented:$showAddNotice){
-            NoticesAddView(profile:profile)
-        }
-    }
-    
-    private func deleteItem<T: NSManagedObject>(_ item: T) {
-        withAnimation {
-            viewContext.delete(item)
-            viewContext.saveData()
+        .sheet(isPresented: $viewModel.showAddNotice) {
+            NoticesAddView(profile: profile)
         }
     }
 }
@@ -128,11 +95,11 @@ struct NoticesView: View {
 struct NoticesHeaderView: View {
     var onCloseTap: () -> Void
     var onAddTap: () -> Void
-    
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Button(action: { onCloseTap() }) {
-                Image(systemName:"chevron.left")
+                Image(systemName: "chevron.left")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
@@ -140,21 +107,21 @@ struct NoticesHeaderView: View {
                     .padding(10)
                     .background(Color(.secondarySystemBackground), in: Circle())
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text("Notices")
                     .font(.system(.title2, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
-                
+
                 Text("Society announcements & events")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             Button(action: { onAddTap() }) {
-                Image(systemName:"plus")
+                Image(systemName: "plus")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
@@ -168,14 +135,14 @@ struct NoticesHeaderView: View {
     }
 }
 
-struct NoticesPillView:View{
-    
-    var selected:Bool
-    var title:String
-    
+struct NoticesPillView: View {
+
+    var selected: Bool
+    var title: String
+
     var onNoticePillTap: () -> Void
-    
-    var body: some View{
+
+    var body: some View {
         Text(title)
             .font(.system(size: 13, weight: .semibold, design: .rounded))
             .padding(.horizontal, 20)
@@ -191,8 +158,3 @@ struct NoticesPillView:View{
             }
     }
 }
-
-
-//#Preview {
-//    NoticesView()
-//}

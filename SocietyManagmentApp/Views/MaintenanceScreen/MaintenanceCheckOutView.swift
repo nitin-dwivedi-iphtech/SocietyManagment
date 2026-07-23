@@ -2,58 +2,36 @@ import SwiftUI
 
 struct MaintenanceCheckOutView: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(\.managedObjectContext) private var viewContext
-    @State var paymentMethod: String = ""
-    @State var upiId: String = ""
-    
+
     @ObservedObject var maintenance: Maintenance
-    @ObservedObject var profile: Profile
-    
+
     var onPayTap: () -> Void
-    
+
+    @StateObject private var viewModel = MaintenanceViewModel()
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                
-                MaintenanceCheckOutCardView(maintenance: maintenance, profile: profile)
+
+                MaintenanceCheckOutCardView(maintenance: maintenance, flatNo: "N/A")
                     .padding(.top, 16)
-                
+
                 MaintenanceCustomField(
-                    text: $paymentMethod,
+                    text: $viewModel.paymentMethod,
                     title: "Payment Method",
                     placeholder: "Payment method eg. (Credit Card, UPI)"
                 )
                 .padding(.horizontal)
-                
+
                 MaintenanceCustomField(
-                    text: $upiId,
+                    text: $viewModel.upiId,
                     title: "UPI ID",
                     placeholder: "UPI ID"
                 )
                 .padding(.horizontal)
-                
+
                 Button(action: {
-                    maintenance.isPaid = true
-                    maintenance.status = "Paid"
-                    maintenance.transactionId = UUID()
-                    
-                    maintenance.receiptNo = "REC-\(Int.random(in: 100000...999999))"
-                    
-                    if let dueDate = maintenance.dueDate {
-                        let calendar = Calendar.current
-                        let dueMonth = calendar.component(.month, from: dueDate)
-                        let dueDay = calendar.component(.day, from: dueDate)
-                        
-                        var payComponents = DateComponents()
-                        payComponents.year = 2026
-                        payComponents.month = dueMonth
-                        payComponents.day = max(1, dueDay - 2)
-                        
-                        maintenance.paymentDate = calendar.date(from: payComponents)
-                    } else {
-                        maintenance.paymentDate = Date()
-                    }
-                    viewContext.saveData()
+                    viewModel.processPayment(maintenance: maintenance)
                     onPayTap()
                     dismiss()
                 }) {
@@ -66,7 +44,7 @@ struct MaintenanceCheckOutView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
-                
+
                 Spacer()
             }
         }
@@ -91,13 +69,13 @@ struct MaintenanceCustomField: View {
     @Binding var text: String
     var title: String
     var placeholder: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.secondary)
-            
+
             TextField(placeholder, text: $text)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -114,8 +92,8 @@ struct MaintenanceCustomField: View {
 
 struct MaintenanceCheckOutCardView: View {
     @ObservedObject var maintenance: Maintenance
-    @ObservedObject var profile: Profile
-    
+    var flatNo: String
+
     var body: some View {
         VStack {
             HStack {
@@ -126,16 +104,16 @@ struct MaintenanceCheckOutCardView: View {
                     .bold()
             }
             Divider()
-            
+
             HStack {
                 Text("Flat")
                     .foregroundStyle(.gray)
                 Spacer()
-                Text(profile.flat_no ?? "N/A")
+                Text(flatNo)
                     .bold()
             }
             Divider()
-            
+
             HStack {
                 Text("Amount")
                     .foregroundStyle(.gray)

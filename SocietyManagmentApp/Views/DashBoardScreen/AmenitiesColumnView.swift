@@ -6,18 +6,13 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct AmenitiesColumnView: View {
-    @State var isAmenitiesShow: Bool = false
-    @State var selectedAmenities:AmenitiesEnum? = nil
-    @ObservedObject var profile:Profile
-    
-    @FetchRequest(
-        entity: Amenities.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Amenities.name, ascending: true)]
-    ) private var fetchedAmenities: FetchedResults<Amenities>
-    
+    @ObservedObject var profile: Profile
+
+    @StateObject private var viewModel = AmenitiesViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -29,11 +24,11 @@ struct AmenitiesColumnView: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
                     .onTapGesture {
-                        isAmenitiesShow = true
+                        viewModel.showAmenitiesSheet = true
                     }
             }
             .padding(.horizontal)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(AmenitiesEnum.allCases) { amenity in
@@ -44,7 +39,7 @@ struct AmenitiesColumnView: View {
                             color: amenity.buttonColor(for: amenity),
                             image: amenity.image(for: amenity),
                             showAmenities: {
-                                selectedAmenities = amenity
+                                viewModel.selectedAmenityType = amenity
                             }
                         )
                     }
@@ -52,19 +47,19 @@ struct AmenitiesColumnView: View {
                 .padding(.horizontal)
             }
         }
-        .sheet(isPresented: $isAmenitiesShow) {
+        .sheet(isPresented: $viewModel.showAmenitiesSheet) {
             NavigationStack {
-                AmenitiesView(profile: profile)
+                AmenitiesView()
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.hidden)
             }
         }
-        .sheet(item: $selectedAmenities) { amenity in
+        .sheet(item: $viewModel.selectedAmenityType) { amenity in
             NavigationStack {
-                if let matchingCoreDataAmenity = fetchedAmenities.first(where: {
+                if let matchingCoreDataAmenity = viewModel.amenities.first(where: {
                     $0.name?.lowercased() == amenity.rawValue.lowercased()
                 }) {
-                    AmenitiesDetailView(profile:profile, amenityType: amenity, loadedAmenity: matchingCoreDataAmenity)
+                    AmenitiesDetailView(profile: profile, amenityType: amenity, loadedAmenity: matchingCoreDataAmenity)
                         .presentationDetents([.medium, .large])
                         .presentationDragIndicator(.hidden)
                 } else {
@@ -77,17 +72,17 @@ struct AmenitiesColumnView: View {
 }
 
 struct AmenitiesCardView: View {
-    
+
     var amenity: AmenitiesEnum
     var name: String
     var slotsOpen: Int
     var color: Color
     var image: String
-    
+
     @Environment(\.sizeCategory) var sizeCategory
-    
-    var showAmenities:()-> Void
-    
+
+    var showAmenities: () -> Void
+
     var body: some View {
         VStack(spacing: 0) {
             Image(image)
@@ -106,19 +101,19 @@ struct AmenitiesCardView: View {
                         .padding(.bottom, 6)
                         .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
                 }
-            
+
             HStack {
                 Text("Slots available")
                     .font(.footnote)
                     .foregroundColor(.white)
                     .bold()
                     .lineLimit(1)
-                
+
                 Spacer()
-                
-                Button(action:{
+
+                Button(action: {
                     showAmenities()
-                }){
+                }) {
                     Text("Book")
                         .font(.footnote)
                         .fontWeight(.bold)
@@ -128,7 +123,7 @@ struct AmenitiesCardView: View {
                         .background(color)
                         .clipShape(Capsule())
                 }
-                
+
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 12)

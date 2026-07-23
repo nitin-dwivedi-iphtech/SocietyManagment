@@ -1,32 +1,26 @@
-//
-//  AddComplaintView.swift
-//  SocietyManagmentApp
-//
-//  Created by iPHTech 40 on 16/07/26.
-//
-
 import SwiftUI
-internal import CoreData
+import CoreData
 import PhotosUI
 
 struct AddComplaintView: View {
-    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var descriptionText: String = ""
     @State private var selectedStatus: String = "Pending"
     @State private var selectedCategory: ComplaintCategoryEnum = .general
     @State private var selectedPhotoImage: PhotosPickerItem? = nil
     @State private var imageUrl: String? = nil
-    
-    @ObservedObject var profile: Profile
-    
+
+    var profileId: UUID
+
+    @StateObject private var viewModel = ComplaintViewModel()
+
     let statusOptions = ["Pending", "In Progress", "Resolved"]
-    
+
     var isFormValid: Bool {
         !descriptionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -45,7 +39,7 @@ struct AddComplaintView: View {
                 } header: {
                     Text("Department / Category")
                 }
-                
+
                 Section {
                     TextEditor(text: $descriptionText)
                         .frame(minHeight: 120)
@@ -62,7 +56,7 @@ struct AddComplaintView: View {
                 } header: {
                     Text("Complaint Details")
                 }
-                
+
                 Section {
                     Picker("Initial Status", selection: $selectedStatus) {
                         ForEach(statusOptions, id: \.self) { status in
@@ -73,7 +67,7 @@ struct AddComplaintView: View {
                 } header: {
                     Text("Status Configuration")
                 }
-                
+
                 Section {
                     CustomPhotoPicker(selectedPhotoImage: $selectedPhotoImage, imageUrl: $imageUrl)
                 } header: {
@@ -88,10 +82,16 @@ struct AddComplaintView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Submit") {
-                        saveComplaint()
+                        viewModel.addComplaint(
+                            profileId: profileId,
+                            description: descriptionText,
+                            category: selectedCategory,
+                            status: selectedStatus,
+                            imageUrl: imageUrl
+                        )
                         dismiss()
                     }
                     .fontWeight(.bold)
@@ -100,34 +100,16 @@ struct AddComplaintView: View {
             }
         }
     }
-    
-    private func saveComplaint() {
-        let newComplaint = Complaint(context: viewContext)
-        newComplaint.id = UUID()
-        newComplaint.personId = profile.id
-        
-        newComplaint.category = selectedCategory.id
-        
-        newComplaint.desc = "[\(selectedCategory.id)] \(descriptionText)"
-        
-        newComplaint.status = selectedStatus
-        newComplaint.resolved = (selectedStatus == "Resolved")
-        
-        if let url = imageUrl {
-            newComplaint.image = url
-        }
-        viewContext.saveData()
-    }
 }
 
 
 struct CustomPhotoPicker: View {
     @Binding var selectedPhotoImage: PhotosPickerItem?
     @Binding var imageUrl: String?
-    
+
     @State private var previewImage: UIImage? = nil
     @State private var isLoading: Bool = false
-    
+
     var body: some View {
         VStack(spacing: 12) {
             if let image = previewImage {
@@ -138,7 +120,7 @@ struct CustomPhotoPicker: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 180)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
+
                     Button(action: removeSelectedPhoto) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
@@ -147,7 +129,7 @@ struct CustomPhotoPicker: View {
                     }
                     .padding(8)
                 }
-                
+
                 PhotosPicker(selection: $selectedPhotoImage, matching: .images) {
                     Label("Change Photo", systemImage: "photo.badge.plus")
                         .font(.subheadline)
@@ -165,19 +147,19 @@ struct CustomPhotoPicker: View {
                                 .font(.title3)
                                 .foregroundColor(.blue)
                         }
-                        
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(isLoading ? "Saving Photo..." : "Attach Photo")
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                            
+
                             Text("JPEG or PNG from your library")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
-                        
+
                         Spacer()
-                        
+
                         Image(systemName: "chevron.right")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -191,12 +173,12 @@ struct CustomPhotoPicker: View {
             transformImage(newItem: newItem)
         }
     }
-    
+
     private func transformImage(newItem: PhotosPickerItem?) {
         guard let newItem = newItem else { return }
-        
+
         isLoading = true
-        
+
         Task {
             if let data = try? await newItem.loadTransferable(type: Data.self) {
                 if let loadedUIImage = UIImage(data: data) {
@@ -204,10 +186,10 @@ struct CustomPhotoPicker: View {
                         self.previewImage = loadedUIImage
                     }
                 }
-                
+
                 let url = saveImage(data: data)
-                
-                Task{ @MainActor in
+
+                Task { @MainActor in
                     self.imageUrl = url
                     self.isLoading = false
                 }
@@ -218,7 +200,7 @@ struct CustomPhotoPicker: View {
             }
         }
     }
-    
+
     private func removeSelectedPhoto() {
         withAnimation {
             if let fileName = imageUrl,
@@ -226,22 +208,22 @@ struct CustomPhotoPicker: View {
                 let fileUrl = documentsDirectory.appendingPathComponent(fileName)
                 try? FileManager.default.removeItem(at: fileUrl)
             }
-            
+
             selectedPhotoImage = nil
             previewImage = nil
             imageUrl = nil
         }
     }
-    
+
     private func saveImage(data: Data) -> String? {
         let fileName = "\(UUID().uuidString).jpg"
-        
+
         guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return nil
         }
-        
+
         let fileUrl = documentsDirectory.appendingPathComponent(fileName)
-        
+
         do {
             try data.write(to: fileUrl)
             return fileName

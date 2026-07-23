@@ -6,34 +6,15 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct ContentView: View {
-    
+
     @AppStorage("selectedTheme") private var selectedTheme: Int = 1
-    
-    @FetchRequest(
-        entity: Profile.entity(),
-        sortDescriptors: []
-    ) var profiles: FetchedResults<Profile>
-    
-    @FetchRequest(
-        entity: Visitor.entity(),
-        sortDescriptors: []
-    ) var visitors: FetchedResults<Visitor>
-    
-    @FetchRequest(
-        entity: Complaint.entity(),
-        sortDescriptors: []
-    ) var complaints: FetchedResults<Complaint>
-    
-    @FetchRequest(
-        entity: Maintenance.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Maintenance.billMonth, ascending: false)]
-    ) var maintenances: FetchedResults<Maintenance>
-    
+    @StateObject private var dashboardVM = DashboardViewModel()
+
     @State var selectedTabView: Int = 2
-    
+
     private var preferredScheme: ColorScheme? {
         switch selectedTheme {
         case 1: return .light
@@ -41,54 +22,52 @@ struct ContentView: View {
         default: return .none
         }
     }
-    
+
     var body: some View {
-        let validProfile = profiles.first
-        
         ZStack(alignment: .topTrailing) {
             TabView(selection: $selectedTabView) {
-                if let profile = validProfile {
+                if let profile = dashboardVM.profile {
 
                     // Visitor
                     NavigationView {
-                        VisitorView(visitors: visitors)
+                        VisitorView()
                     }
                     .tabItem {
                         Label("Visitor", systemImage: "ticket.fill")
                     }
                     .tag(0)
-                    
+
                     // Complaints
                     NavigationView {
-                        ComplaintView(profile: profile, complaints: complaints)
+                        ComplaintView(profileId: profile.id ?? UUID())
                     }
                     .tabItem {
                         Label("Complaints", systemImage: "exclamationmark.bubble.fill")
                     }
                     .tag(1)
-                    
+
                     // DashBoard
                     NavigationStack {
-                        DashBoardView(profile: profile, selectedTabView: $selectedTabView, maintenances: maintenances, visitors: visitors)
+                        DashBoardView(selectedTabView: $selectedTabView)
                     }
                     .navigationBarHidden(false)
                     .tabItem {
                         Label("Home", systemImage: "house.fill")
                     }
                     .tag(2)
-                    
+
                     // Maintenance
                     NavigationView {
-                        MaintenanceView(maintenances: maintenances, profile: profile)
+                        MaintenanceView()
                     }
                     .tabItem {
                         Label("Pay", systemImage: "creditcard.fill")
                     }
                     .tag(3)
-                    
+
                     // Profile
                     NavigationView {
-                        ProfileView(profile: profile)
+                        ProfileView()
                     }
                     .tabItem {
                         Label("Profile", systemImage: "person.crop.circle.fill")

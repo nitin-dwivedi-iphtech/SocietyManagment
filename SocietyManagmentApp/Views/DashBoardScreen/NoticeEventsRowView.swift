@@ -6,22 +6,13 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct NoticeEventsRowView: View {
     @State var showNoticesView: Bool = false
-    @ObservedObject var profile:Profile
-    
-    @FetchRequest(
-        entity: Notices.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Notices.postedDate, ascending: false)]
-    ) var notices: FetchedResults<Notices>
-    
-    @FetchRequest(
-        entity: Events.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Events.startDate, ascending: true)]
-    ) var events: FetchedResults<Events>
-    
+    @ObservedObject var profile: Profile
+    @ObservedObject var viewModel: DashboardViewModel
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -37,24 +28,24 @@ struct NoticeEventsRowView: View {
                     }
             }
             .padding(.horizontal)
-            
-            NoticesCardView(notices: notices)
-            EventsCardView(events: events)
+
+            NoticesCardView(notices: viewModel.notices)
+            EventsCardView(events: viewModel.events)
         }
         .padding(.vertical)
         .sheet(isPresented: $showNoticesView) {
-            NoticesView(profile :profile, notices: notices, events: events)
+            NoticesView(profile: profile)
         }
     }
 }
 
 struct NoticesCardView: View {
-    var notices: FetchedResults<Notices>
-    
+    var notices: [Notices]
+
     var displayNotices: [Notices] {
         Array(notices.prefix(2))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if displayNotices.isEmpty {
@@ -65,7 +56,7 @@ struct NoticesCardView: View {
             } else {
                 ForEach(Array(displayNotices.enumerated()), id: \.element) { index, notice in
                     NoticeCardRowView(notices: notice)
-                    
+
                     if index < displayNotices.count - 1 {
                         Divider()
                             .padding(.leading, 50)
@@ -82,12 +73,12 @@ struct NoticesCardView: View {
 }
 
 struct EventsCardView: View {
-    var events: FetchedResults<Events>
-    
+    var events: [Events]
+
     var displayEvents: [Events] {
         Array(events.prefix(2))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if displayEvents.isEmpty {
@@ -98,7 +89,7 @@ struct EventsCardView: View {
             } else {
                 ForEach(Array(displayEvents.enumerated()), id: \.element) { index, event in
                     EventsCardRowView(event: event)
-                    
+
                     if index < displayEvents.count - 1 {
                         Divider()
                             .padding(.leading, 50)
@@ -116,7 +107,7 @@ struct EventsCardView: View {
 
 struct NoticeCardRowView: View {
     var notices: Notices
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: "bell.fill")
@@ -125,7 +116,7 @@ struct NoticeCardRowView: View {
                 .frame(width: 36, height: 36)
                 .background(Color.blue.opacity(0.1))
                 .clipShape(Circle())
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(notices.body ?? "N/A")
                     .font(.body)
@@ -133,7 +124,7 @@ struct NoticeCardRowView: View {
                     .foregroundColor(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                
+
                 Text(notices.postedDate ?? Date(), style: .date)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -146,7 +137,7 @@ struct NoticeCardRowView: View {
 
 struct EventsCardRowView: View {
     var event: Events
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: "party.popper.fill")
@@ -155,7 +146,7 @@ struct EventsCardRowView: View {
                 .frame(width: 36, height: 36)
                 .background(Color.purple.opacity(0.1))
                 .clipShape(Circle())
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.details ?? "N/A")
                     .font(.body)
@@ -163,7 +154,7 @@ struct EventsCardRowView: View {
                     .foregroundColor(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                
+
                 Text(event.startDate ?? Date(), style: .date)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -173,11 +164,3 @@ struct EventsCardRowView: View {
         .padding(.vertical, 10)
     }
 }
-
-//#Preview {
-//    ZStack {
-//        Color(.systemGroupedBackground)
-//            .ignoresSafeArea()
-//        NoticeEventsRowView()
-//    }
-//}

@@ -6,72 +6,30 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct ComplaintView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    @State private var selectedFilter: ComplaintEnum = .all
-    @State var showAddComplaint: Bool = false
-    @ObservedObject var profile: Profile
-    @State private var selectedComplaint: Complaint? = nil
-    @State private var searchText:String = ""
-    
-    @State private var refreshTrigger: Bool = false
-    
-    var complaints: FetchedResults<Complaint>
-    
-    var filteredComplaints: [Complaint] {
-        let _ = refreshTrigger
-        let cleanArray = Array(complaints)
-        
-        switch selectedFilter {
-        case .all:
-            return cleanArray
-        case .open:
-            return cleanArray.filter { $0.status?.lowercased() == "pending" || $0.status?.lowercased() == "open" }
-        case .inProgress:
-            return cleanArray.filter { $0.status?.lowercased() == "in progress" || $0.status?.lowercased() == "inprogress" }
-        case .done:
-            return cleanArray.filter { $0.status?.lowercased() == "resolved" || $0.status?.lowercased() == "done" }
-        }
-    }
-    
-    var searchFilteredComplaints: [Complaint] {
-        let _ = refreshTrigger
-        guard !searchText.isEmpty else { return filteredComplaints }
-        
-        let query = searchText.lowercased()
-        
-        return filteredComplaints.filter { complaint in
-            
-            let categoryMatches = complaint.category?.lowercased().contains(query) ?? false
-            
-            let descMatches = complaint.desc?.lowercased().contains(query) ?? false
-            
-            return categoryMatches || descMatches
-        }
-    }
-    
-    private var openCount: Int {
-        complaints.filter { !$0.resolved }.count
-    }
-    
+    var profileId: UUID
+
+    @StateObject private var viewModel = ComplaintViewModel()
+
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Complaints")
                         .font(.system(.title, design: .rounded))
                         .fontWeight(.bold)
-                    
-                    Text("\(openCount) open Complaints")
+
+                    Text("\(viewModel.openComplaintsCount) open complaints")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
                 }
                 Spacer()
+
                 Button(action: {
-                    showAddComplaint = true
+                    viewModel.showAddComplaint = true
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
@@ -82,30 +40,44 @@ struct ComplaintView: View {
                         .clipShape(Circle())
                 }
             }
-            .padding(.horizontal)
-            .padding(.top, 10)
-            
-            CustomSearchView(searchText: $searchText)
-            ComplaintPillView(selectedFilter: $selectedFilter)
-            
-            List {
-                ForEach(searchFilteredComplaints) { complaint in
-                    ComplainListView(complaint: complaint)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        .listRowBackground(Color.clear)
-                        .padding(.vertical, 6)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+
+            CustomSearchView(searchText: $viewModel.searchText)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(ComplaintEnum.allCases) { filter in
+                        PillView(
+                            title: filter.rawValue,
+                            count: viewModel.dynamicCount(for: filter),
+                            isSelected: viewModel.selectedPill == filter
+                        )
                         .onTapGesture {
-                            selectedComplaint = complaint
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                viewModel.selectedPill = filter
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+            .padding(.vertical, 16)
+
+            List {
+                ForEach(viewModel.searchFilteredComplaints) { complaint in
+                    ComplainListView(complaint: complaint)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .onTapGesture {
+                            viewModel.selectedComplaint = complaint
+                            viewModel.showComplaintDetail = true
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if !complaint.resolved {
                                 Button {
-                                    withAnimation {
-                                        complaint.resolved = true
-                                        complaint.status = "Resolved"
-                                        viewContext.saveData()
-                                        refreshTrigger.toggle()
-                                    }
+                                    viewModel.resolveComplaint(complaint)
                                 } label: {
                                     Label("Resolve", systemImage: "checkmark.circle.fill")
                                 }
@@ -115,57 +87,16 @@ struct ComplaintView: View {
                 }
             }
             .listStyle(.plain)
-            
-            Spacer()
+            .background(Color(.systemGroupedBackground).opacity(0.4))
         }
-        .sheet(isPresented: $showAddComplaint) {
-            AddComplaintView(profile: profile)
-                .environment(\.managedObjectContext, viewContext)
+        .sheet(isPresented: $viewModel.showAddComplaint) {
+            AddComplaintView(profileId: profileId)
         }
-        .sheet(item: $selectedComplaint) { complaint in
-            ComplaintDetailView(complaint: complaint)
-                .environment(\.managedObjectContext, viewContext)
-        }
-    }
-}
-
-
-
-struct ComplaintPillView: View {
-    @Binding var selectedFilter: ComplaintEnum
-    
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(ComplaintEnum.allCases) { complaint in
-                    ComplaintPillTextView(title: complaint.rawValue, isSelectedPill: selectedFilter == complaint)
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                                selectedFilter = complaint
-                            }
-                        }
-                }
+        .sheet(isPresented: $viewModel.showComplaintDetail) {
+            if let complaint = viewModel.selectedComplaint {
+                ComplaintDetailView(complaint: complaint)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
         }
-    }
-}
-
-struct ComplaintPillTextView: View {
-    var title: String = ""
-    var isSelectedPill: Bool
-    
-    var body: some View {
-        Text(title)
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
-            .padding(.horizontal, 20)
-            .padding(.vertical, 8)
-            .foregroundStyle(isSelectedPill ? .white : .secondary)
-            .background(
-                isSelectedPill ? Color.blue : Color(.secondarySystemGroupedBackground),
-                in: Capsule()
-            )
-            .shadow(color: isSelectedPill ? .blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+        .navigationBarHidden(true)
     }
 }

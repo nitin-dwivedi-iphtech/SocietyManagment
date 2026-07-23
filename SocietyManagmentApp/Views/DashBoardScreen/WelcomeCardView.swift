@@ -10,42 +10,33 @@ import SwiftUI
 
 struct WelcomeCardView: View {
 
-    var date:Date = Date()
-    var userName:String
-    var maintenance:FetchedResults<Maintenance>
-    var visitors:FetchedResults<Visitor>
-    
-    var computedMaintenance:Int {
-        maintenance.filter{ !$0.isPaid }.reduce(0) { $0 + Int($1.amount) }
-    }
-    
-    var computedVisitors:Int {
-        visitors.filter{ $0.inside }.count
-    }
-    
+    var date: Date = Date()
+    var userName: String
+    @ObservedObject var viewModel: DashboardViewModel
+
     var body: some View {
-        VStack(alignment:.leading,spacing:11){
-            Text(date,style:.date)
+        VStack(alignment: .leading, spacing: 11) {
+            Text(date, style: .date)
                 .bold()
                 .foregroundColor(.white.opacity(0.7))
-            
+
             Text("Good Morning,")
                 .font(.system(size: 25))
                 .foregroundColor(.white)
                 .bold()
-            
+
             Text("\(userName) 👋")
                 .foregroundColor(.blue)
                 .bold()
                 .font(.system(size: 20))
-            
+
             HStack(spacing: 10) {
-                BadgeView(value: "\(computedVisitors)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
-                BadgeView(value: "3", label: "Open", icon: "envelope.open.fill", color: .blue)
-                BadgeView(value: "\(computedMaintenance)", label: "Due", icon: "exclamationmark.triangle.fill", color: .orange)
+                BadgeView(value: "\(viewModel.insideVisitorsCount)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
+                BadgeView(value: "\(viewModel.openNoticesCount)", label: "Open", icon: "envelope.open.fill", color: .blue)
+                BadgeView(value: "\(viewModel.unpaidMaintenanceTotal)", label: "Due", icon: "exclamationmark.triangle.fill", color: .orange)
             }
         }
-        .padding(.horizontal,20)
+        .padding(.horizontal, 20)
         .padding(.vertical)
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .background(
@@ -55,20 +46,20 @@ struct WelcomeCardView: View {
 }
 
 
-struct BadgeView:View{
+struct BadgeView: View {
     let value: String
     let label: String
     let icon: String
     let color: Color
-    var body: some View{
+    var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.system(size: 10, weight: .bold))
-            
+
             Text(value)
-                .font(.system(size:10, design: .rounded))
+                .font(.system(size: 10, design: .rounded))
                 .fontWeight(.bold)
-            
+
             Text(label)
                 .font(.footnote)
                 .fontWeight(.medium)
@@ -79,9 +70,5 @@ struct BadgeView:View{
         .background(color.opacity(0.12))
         .clipShape(Capsule())
     }
-    
-}
 
-//#Preview {
-//    WelcomeCardView(userName: "Nitin")
-//}
+}

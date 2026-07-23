@@ -6,74 +6,52 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct NoticesAddView: View {
-    enum ContentType: String, CaseIterable, Identifiable {
-        case notice = "Notice"
-        case event = "Event"
-        var id: String { rawValue }
-    }
-    
+
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.managedObjectContext) private var viewContext
-    
     @ObservedObject var profile: Profile
-    
-    @State private var type: ContentType = .notice
-    
-    @State private var title: String = ""
-    @State private var description: String = ""
-    @State private var category: NoticesEnum = .general
-    @State private var isImportant: Bool = false
-    
-    @State private var startDate: Date = Date()
-    @State private var endDate: Date = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
-    
-    @State private var showValidation: Bool = false
-    @State private var validationMessage: String = ""
-    
-    private var isDateInvalid: Bool {
-        type == .event && endDate <= startDate
-    }
-    
+
+    @StateObject private var viewModel = NoticesViewModel()
+
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Type")) {
-                    Picker("Type", selection: $type) {
-                        ForEach(ContentType.allCases) { t in
+                    Picker("Type", selection: $viewModel.contentType) {
+                        ForEach(NoticesViewModel.ContentType.allCases) { t in
                             Text(t.rawValue).tag(t)
                         }
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 Section(header: Text("Details")) {
-                    TextField("Title", text: $title)
+                    TextField("Title", text: $viewModel.title)
                         .textInputAutocapitalization(.sentences)
-                    
-                    TextField("Description", text: $description, axis: .vertical)
+
+                    TextField("Description", text: $viewModel.description, axis: .vertical)
                         .lineLimit(4...8)
                 }
-                
-                if type == .event {
+
+                if viewModel.contentType == .event {
                     Section(
                         header: Text("Event Schedule"),
                         footer: Group {
-                            if isDateInvalid {
+                            if viewModel.isDateInvalid {
                                 Text("End date must be after start date.")
                                     .foregroundStyle(.red)
                             }
                         }
                     ) {
-                        DatePicker("Start Date", selection: $startDate, in: Date()...)
-                        DatePicker("End Date", selection: $endDate, in: startDate...)
+                        DatePicker("Start Date", selection: $viewModel.startDate, in: Date()...)
+                        DatePicker("End Date", selection: $viewModel.endDate, in: viewModel.startDate...)
                     }
                 }
-                
+
                 Section(header: Text("Classification")) {
-                    if type == .event {
+                    if viewModel.contentType == .event {
                         HStack {
                             Text("Category")
                             Spacer()
@@ -82,26 +60,26 @@ struct NoticesAddView: View {
                         }
                     } else {
                         Picker("Category", selection: Binding(
-                            get: { category == .events ? .general : category },
-                            set: { category = $0 }
+                            get: { viewModel.category == .events ? .general : viewModel.category },
+                            set: { viewModel.category = $0 }
                         )) {
                             ForEach(NoticesEnum.allCases.filter { $0 != .all && $0 != .events }, id: \.self) { item in
                                 Text(item.rawValue).tag(item)
                             }
                         }
-                        
-                        Toggle("Mark as Important", isOn: $isImportant)
+
+                        Toggle("Mark as Important", isOn: $viewModel.isImportant)
                     }
                 }
             }
-            .onChange(of: type) { _, newValue in
+            .onChange(of: viewModel.contentType) { _, newValue in
                 if newValue == .event {
-                    category = .events
-                } else if category == .events {
-                    category = .general
+                    viewModel.category = .events
+                } else if viewModel.category == .events {
+                    viewModel.category = .general
                 }
             }
-            .navigationTitle("New \(type.rawValue)")
+            .navigationTitle("New \(viewModel.contentType.rawValue)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -109,82 +87,20 @@ struct NoticesAddView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        save()
+                        viewModel.saveNotice(profile: profile)
+                        dismiss()
                     } label: {
                         Text("Save").bold()
-                        
+
                     }
                 }
             }
-            .alert("Validation Error", isPresented: $showValidation) {
+            .alert("Validation Error", isPresented: $viewModel.showValidation) {
                 Button("OK", role: .cancel) { }
             } message: {
-                Text(validationMessage)
+                Text(viewModel.validationMessage)
             }
         }
         .tint(.accentColor)
-    }
-    
-    private func save() {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !trimmedTitle.isEmpty else {
-            validationMessage = "Please enter a title."
-            showValidation = true
-            return
-        }
-        
-        if type == .event && endDate <= startDate {
-            validationMessage = "End date must be after the start date."
-            showValidation = true
-            return
-        }
-        
-        
-        if type == .event {
-            let event = Events(context: viewContext)
-            event.id = UUID()
-            event.title = trimmedTitle
-            event.details = description
-            event.startDate = startDate
-            event.endDate = endDate
-            event.category = NoticesEnum.events.rawValue
-            event.profileId = profile.id
-            
-            NotificationManager.shared.sendNotification(
-                title: "New Event Added",
-                body: "\(trimmedTitle) has been scheduled.",
-                timeInterval: 1
-            )
-            
-            NotificationManager.shared.scheduleNotification(
-                title: "Event Starting Now!",
-                body: "\(trimmedTitle) is starting at \(startDate.formatted(date: .omitted, time: .shortened)).",
-                triggerDate: startDate
-            )
-        } else {
-            let notice = Notices(context: viewContext)
-            notice.id = UUID()
-            notice.title = trimmedTitle
-            notice.body = description
-            notice.authorName = profile.name
-            notice.category = category.rawValue
-            notice.isImportant = isImportant
-            notice.postedDate = Date()
-            notice.profileId = profile.id
-            
-            let noticeTitle = isImportant ? "Important Notice Posted" : "New Notice Published"
-            NotificationManager.shared.sendNotification(
-                title: noticeTitle,
-                body: "\(trimmedTitle) — check the app for details.",
-                timeInterval: 1
-            )
-        }
-        
-        viewContext.saveData()
-        
-        
-        
-        dismiss()
     }
 }

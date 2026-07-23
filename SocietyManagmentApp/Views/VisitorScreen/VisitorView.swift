@@ -1,48 +1,17 @@
+//
+//  VisitorView.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 16/07/26.
+//
+
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct VisitorView: View {
-    var visitors: FetchedResults<Visitor>
-    
-    @Environment(\.managedObjectContext) private var viewContext
-    @State private var searchText: String = ""
-    @State private var selectedPill: VisitorEnum = .all
-    @State private var showAddVisitor: Bool = false
-    
-    @State private var refreshTrigger: Bool = false
-    private var filteredVisitors: [Visitor] {
-        
-        let _ = refreshTrigger
-        let cleanArray = Array(visitors)
-        
-        switch selectedPill {
-        case .all:
-            return cleanArray
-            
-        case .expected:
-            return cleanArray.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }
-            
-        case .inside:
-            return cleanArray.filter { $0.inside && !$0.exited }
-            
-        case .exited:
-            return cleanArray.filter { !$0.inside  && $0.exited && ($0.arrival_time ?? Date()) < Date() }
-        }
-    }
-    
-    private var searchFilteredVisitors: [Visitor] {
-        let _ = refreshTrigger
-        guard !searchText.isEmpty else { return filteredVisitors }
-        
-        let lowercasedQuery = searchText.lowercased()
-        
-        let filtered: [Visitor] = filteredVisitors.filter {
-            $0.name?.lowercased().contains(lowercasedQuery) ?? false
-        }
-        
-        return filtered
-    }
-    
+
+    @StateObject private var viewModel = VisitorViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom) {
@@ -50,17 +19,17 @@ struct VisitorView: View {
                     Text("Visitors")
                         .font(.system(.title, design: .rounded))
                         .fontWeight(.bold)
-                    
-                    Text("\(visitors.filter { $0.inside }.count) currently inside")
+
+                    Text("\(viewModel.insideVisitorsCount) currently inside")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
-                        .id("\(visitors.count)-\(visitors.filter { $0.inside }.count)")
+                        .id("\(viewModel.visitors.count)-\(viewModel.insideVisitorsCount)")
                 }
                 Spacer()
-                
+
                 Button(action: {
-                    showAddVisitor = true
+                    viewModel.showAddVisitor = true
                 }) {
                     Image(systemName: "person.badge.plus")
                         .font(.title2)
@@ -73,20 +42,20 @@ struct VisitorView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            
-            CustomSearchView(searchText: $searchText)
-            
+
+            CustomSearchView(searchText: $viewModel.searchText)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(VisitorEnum.allCases) { filter in
                         PillView(
                             title: filter.rawValue,
-                            count: getDynamicCount(for: filter),
-                            isSelected: selectedPill == filter
+                            count: viewModel.dynamicCount(for: filter),
+                            isSelected: viewModel.selectedPill == filter
                         )
                         .onTapGesture {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                selectedPill = filter
+                                viewModel.selectedPill = filter
                             }
                         }
                     }
@@ -94,23 +63,18 @@ struct VisitorView: View {
                 .padding(.horizontal, 20)
             }
             .padding(.vertical, 16)
-            
+
             List {
-                ForEach(searchFilteredVisitors) { visitor in
+                ForEach(viewModel.searchFilteredVisitors) { visitor in
                     VisitorListView(visitor: visitor)
                         .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                    
+
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if visitor.inside {
                                 Button {
-                                    withAnimation(.spring()) {
-                                        visitor.inside = false
-                                        visitor.exited = true
-                                        viewContext.saveData()
-                                        refreshTrigger.toggle()
-                                    }
+                                    viewModel.markExit(visitor: visitor)
                                 } label: {
                                     Label("Exit", systemImage: "door.left.hand.open")
                                 }
@@ -120,12 +84,7 @@ struct VisitorView: View {
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             if !visitor.inside && !visitor.exited {
                                 Button {
-                                    withAnimation(.spring()) {
-                                        visitor.inside = true
-                                        visitor.exited = false
-                                        viewContext.saveData()
-                                        refreshTrigger.toggle()
-                                    }
+                                    viewModel.markEntry(visitor: visitor)
                                 } label: {
                                     Label("Entry", systemImage: "door.right.hand.open")
                                 }
@@ -137,26 +96,10 @@ struct VisitorView: View {
             .listStyle(.plain)
             .background(Color(.systemGroupedBackground).opacity(0.4))
         }
-        .sheet(isPresented: $showAddVisitor) {
+        .sheet(isPresented: $viewModel.showAddVisitor) {
             AddVisitorView()
         }
         .navigationBarHidden(true)
-    }
-    
-    private func getDynamicCount(for filter: VisitorEnum) -> Int {
-        
-        let _ = refreshTrigger
-        let cleanArray = Array(visitors)
-        switch filter {
-        case .all:
-            return cleanArray.count
-        case .expected:
-            return cleanArray.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }.count
-        case .inside:
-            return cleanArray.filter { $0.inside && !$0.exited }.count
-        case .exited:
-            return cleanArray.filter { !$0.inside && $0.exited && ($0.arrival_time ?? Date()) < Date() }.count
-        }
     }
 }
 
@@ -165,13 +108,13 @@ struct PillView: View {
     var title: String
     var count: Int
     var isSelected: Bool
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundColor(isSelected ? .white : .primary)
-            
+
             Text("\(count)")
                 .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .padding(.horizontal, 8)

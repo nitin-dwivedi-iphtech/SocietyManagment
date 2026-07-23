@@ -6,48 +6,40 @@
 //
 
 import SwiftUI
-internal import CoreData
+import CoreData
 
 struct DashBoardView: View {
-    @ObservedObject var profile:Profile
-    @Binding var selectedTabView:Int
-    var maintenances:FetchedResults<Maintenance>
-    var visitors:FetchedResults<Visitor>
-    
+    @Binding var selectedTabView: Int
+
+    @StateObject private var viewModel = DashboardViewModel()
+
     var body: some View {
-        ScrollView(showsIndicators:false){
-            VStack(spacing:10){
-                HStack{
-                    VStack(alignment:.leading){
-                        Text("GreenValley")
-                            .font(.title)
-                            .bold()
-                        Text("Welcome back, \(profile.name ?? "N/A") 👋")
-                    }.padding()
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 10) {
+                if let profile = viewModel.profile {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("GreenValley")
+                                .font(.title)
+                                .bold()
+                            Text("\(viewModel.greeting) \(profile.name ?? "N/A") 👋")
+                        }.padding()
+                        Spacer()
+                    }
+
+                    WelcomeCardView(userName: profile.name ?? "N/A", viewModel: viewModel)
+                        .padding(.horizontal)
+
+                    MaintenanceRowView(selectedTabView: $selectedTabView, viewModel: viewModel)
+
+                    AmenitiesColumnView(profile: profile)
+
+                    NoticeEventsRowView(profile: profile, viewModel: viewModel)
+
                     Spacer()
                 }
-                
-                WelcomeCardView(userName: profile.name ?? "N/A", maintenance: maintenances, visitors: visitors)
-                    .padding(.horizontal)
-                
-                
-                MaintenanceRowView(selectedTabView:$selectedTabView, maintenances: maintenances)
-                
-                AmenitiesColumnView(profile:profile)
-                
-                NoticeEventsRowView(profile:profile)
-                
-                Spacer()
             }
-            .padding(.all,5)
+            .padding(.all, 5)
         }
     }
 }
-
-
-
-//#Preview {
-//    let mockProfile = Profile()
-//    mockProfile.name = "John Doe"
-//   return DashBoardView(profile: mockProfile).preferredColorScheme(.dark)
-//}
