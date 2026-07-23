@@ -7,7 +7,7 @@ struct BookingDetailView: View {
     var imageIcon: String
 
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = BookingViewModel()
+    @EnvironmentObject var viewModel: BookingViewModel
     @State private var showCancelAlert = false
 
     private var amenityType: AmenitiesEnum? {

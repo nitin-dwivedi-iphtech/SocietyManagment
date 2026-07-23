@@ -12,7 +12,7 @@ struct AddVisitorView: View {
     @State var address: String = ""
     @State var arrival_time: Date = Date()
 
-    @StateObject private var viewModel = VisitorViewModel()
+    @EnvironmentObject var viewModel: VisitorViewModel
 
     var body: some View {
         VStack {

@@ -11,7 +11,7 @@ import CoreData
 struct NoticeEventsRowView: View {
     @State var showNoticesView: Bool = false
     @ObservedObject var profile: Profile
-    @ObservedObject var viewModel: DashboardViewModel
+    @EnvironmentObject var noticesVM: NoticesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -29,8 +29,8 @@ struct NoticeEventsRowView: View {
             }
             .padding(.horizontal)
 
-            NoticesCardView(notices: viewModel.notices)
-            EventsCardView(events: viewModel.events)
+            NoticesCardView(notices: noticesVM.notices)
+            EventsCardView(events: noticesVM.events)
         }
         .padding(.vertical)
         .sheet(isPresented: $showNoticesView) {

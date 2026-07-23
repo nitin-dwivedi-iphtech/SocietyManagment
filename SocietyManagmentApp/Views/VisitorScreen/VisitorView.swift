@@ -10,7 +10,7 @@ import CoreData
 
 struct VisitorView: View {
 
-    @StateObject private var viewModel = VisitorViewModel()
+    @EnvironmentObject var viewModel: VisitorViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

@@ -12,6 +12,13 @@ struct ContentView: View {
 
     @AppStorage("selectedTheme") private var selectedTheme: Int = 1
     @StateObject private var dashboardVM = DashboardViewModel()
+    @StateObject private var visitorVM = VisitorViewModel()
+    @StateObject private var complaintVM = ComplaintViewModel()
+    @StateObject private var maintenanceVM = MaintenanceViewModel()
+    @StateObject private var amenitiesVM = AmenitiesViewModel()
+    @StateObject private var noticesVM = NoticesViewModel()
+    @StateObject private var bookingVM = BookingViewModel()
+    @StateObject private var profileVM = ProfileViewModel()
 
     @State var selectedTabView: Int = 2
 
@@ -79,6 +86,14 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(preferredScheme)
+        .environmentObject(dashboardVM)
+        .environmentObject(visitorVM)
+        .environmentObject(complaintVM)
+        .environmentObject(maintenanceVM)
+        .environmentObject(amenitiesVM)
+        .environmentObject(noticesVM)
+        .environmentObject(bookingVM)
+        .environmentObject(profileVM)
     }
 }
 

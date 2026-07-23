@@ -11,7 +11,7 @@ import CoreData
 struct AmenitiesColumnView: View {
     @ObservedObject var profile: Profile
 
-    @StateObject private var viewModel = AmenitiesViewModel()
+    @EnvironmentObject var viewModel: AmenitiesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

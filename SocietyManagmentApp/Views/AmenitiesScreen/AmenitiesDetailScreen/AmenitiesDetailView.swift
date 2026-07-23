@@ -14,7 +14,7 @@ struct AmenitiesDetailView: View {
 
     @ObservedObject var profile: Profile
 
-    @StateObject private var viewModel = AmenitiesViewModel()
+    @EnvironmentObject var viewModel: AmenitiesViewModel
 
     var amenityType: AmenitiesEnum
     var loadedAmenity: Amenities

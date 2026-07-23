@@ -12,7 +12,10 @@ struct WelcomeCardView: View {
 
     var date: Date = Date()
     var userName: String
-    @ObservedObject var viewModel: DashboardViewModel
+
+    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
+    @EnvironmentObject var visitorVM: VisitorViewModel
+    @EnvironmentObject var noticesVM: NoticesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 11) {
@@ -31,9 +34,9 @@ struct WelcomeCardView: View {
                 .font(.system(size: 20))
 
             HStack(spacing: 10) {
-                BadgeView(value: "\(viewModel.insideVisitorsCount)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
-                BadgeView(value: "\(viewModel.openNoticesCount)", label: "Open", icon: "envelope.open.fill", color: .blue)
-                BadgeView(value: "\(viewModel.unpaidMaintenanceTotal)", label: "Due", icon: "exclamationmark.triangle.fill", color: .orange)
+                BadgeView(value: "\(visitorVM.visitors.filter { $0.inside }.count)", label: "Inside", icon: "checkmark.circle.fill", color: .green)
+                BadgeView(value: "\(noticesVM.notices.filter { !$0.isImportant }.count)", label: "Open", icon: "envelope.open.fill", color: .blue)
+                BadgeView(value: "\(maintenanceVM.maintenances.filter { !$0.isPaid }.reduce(0) { $0 + Int($1.amount) })", label: "Due", icon: "exclamationmark.triangle.fill", color: .orange)
             }
         }
         .padding(.horizontal, 20)

@@ -10,7 +10,7 @@ import CoreData
 
 struct AmenitiesView: View {
 
-    @StateObject private var viewModel = AmenitiesViewModel()
+    @EnvironmentObject var viewModel: AmenitiesViewModel
 
     var body: some View {
         List {

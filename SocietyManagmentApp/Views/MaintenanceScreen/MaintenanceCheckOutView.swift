@@ -7,7 +7,7 @@ struct MaintenanceCheckOutView: View {
 
     var onPayTap: () -> Void
 
-    @StateObject private var viewModel = MaintenanceViewModel()
+    @EnvironmentObject var viewModel: MaintenanceViewModel
 
     var body: some View {
         ScrollView {

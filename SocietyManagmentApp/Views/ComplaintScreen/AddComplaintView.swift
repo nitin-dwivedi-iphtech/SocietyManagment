@@ -13,7 +13,7 @@ struct AddComplaintView: View {
 
     var profileId: UUID
 
-    @StateObject private var viewModel = ComplaintViewModel()
+    @EnvironmentObject var viewModel: ComplaintViewModel
 
     let statusOptions = ["Pending", "In Progress", "Resolved"]
 

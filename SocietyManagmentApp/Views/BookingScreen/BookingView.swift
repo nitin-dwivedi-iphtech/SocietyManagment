@@ -5,7 +5,7 @@ struct BookingView: View {
 
     @Environment(\.dismiss) var dismiss
 
-    @StateObject private var viewModel = BookingViewModel()
+    @EnvironmentObject var viewModel: BookingViewModel
 
     var body: some View {
         NavigationStack {

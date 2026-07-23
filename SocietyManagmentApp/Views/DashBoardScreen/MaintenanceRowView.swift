@@ -10,7 +10,11 @@ import SwiftUI
 struct MaintenanceRowView: View {
 
     @Binding var selectedTabView: Int
-    @ObservedObject var viewModel: DashboardViewModel
+    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
+
+    var unpaidMaintenances: [Maintenance] {
+        maintenanceVM.maintenances.filter { !$0.isPaid }
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -27,14 +31,14 @@ struct MaintenanceRowView: View {
                     }
             }
 
-            if viewModel.unpaidMaintenances.isEmpty {
+            if unpaidMaintenances.isEmpty {
                 Text("No Pay due!")
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundStyle(.secondary)
                     .padding()
             } else {
-                ForEach(viewModel.unpaidMaintenances) { maintenance in
+                ForEach(unpaidMaintenances) { maintenance in
                     MaintenanceSubRowView(selectedTabView: $selectedTabView, maintenance: maintenance)
                 }
             }

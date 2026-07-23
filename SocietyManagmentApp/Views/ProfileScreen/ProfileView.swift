@@ -3,7 +3,7 @@ import CoreData
 
 struct ProfileView: View {
 
-    @StateObject private var viewModel = ProfileViewModel()
+    @EnvironmentObject var viewModel: ProfileViewModel
 
     var body: some View {
         ScrollView(showsIndicators: false) {

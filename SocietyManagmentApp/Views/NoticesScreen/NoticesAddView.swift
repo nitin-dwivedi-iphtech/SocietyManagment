@@ -13,7 +13,7 @@ struct NoticesAddView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var profile: Profile
 
-    @StateObject private var viewModel = NoticesViewModel()
+    @EnvironmentObject var viewModel: NoticesViewModel
 
     var body: some View {
         NavigationStack {

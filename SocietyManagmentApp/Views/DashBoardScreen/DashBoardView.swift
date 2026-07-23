@@ -11,7 +11,11 @@ import CoreData
 struct DashBoardView: View {
     @Binding var selectedTabView: Int
 
-    @StateObject private var viewModel = DashboardViewModel()
+    @EnvironmentObject var viewModel: DashboardViewModel
+    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
+    @EnvironmentObject var visitorVM: VisitorViewModel
+    @EnvironmentObject var noticesVM: NoticesViewModel
+    @EnvironmentObject var amenitiesVM: AmenitiesViewModel
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -27,14 +31,14 @@ struct DashBoardView: View {
                         Spacer()
                     }
 
-                    WelcomeCardView(userName: profile.name ?? "N/A", viewModel: viewModel)
+                    WelcomeCardView(userName: profile.name ?? "N/A")
                         .padding(.horizontal)
 
-                    MaintenanceRowView(selectedTabView: $selectedTabView, viewModel: viewModel)
+                    MaintenanceRowView(selectedTabView: $selectedTabView)
 
                     AmenitiesColumnView(profile: profile)
 
-                    NoticeEventsRowView(profile: profile, viewModel: viewModel)
+                    NoticeEventsRowView(profile: profile)
 
                     Spacer()
                 }

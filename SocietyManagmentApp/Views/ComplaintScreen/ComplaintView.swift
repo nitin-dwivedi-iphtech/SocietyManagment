@@ -11,7 +11,7 @@ import CoreData
 struct ComplaintView: View {
     var profileId: UUID
 
-    @StateObject private var viewModel = ComplaintViewModel()
+    @EnvironmentObject var viewModel: ComplaintViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

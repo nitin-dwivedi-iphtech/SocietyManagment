@@ -4,11 +4,6 @@ import Combine
 
 class DashboardViewModel: ObservableObject {
     @Published var profile: Profile?
-    @Published var maintenances: [Maintenance] = []
-    @Published var visitors: [Visitor] = []
-    @Published var notices: [Notices] = []
-    @Published var events: [Events] = []
-    @Published var amenities: [Amenities] = []
     @Published var showAmenitiesSheet: Bool = false
     @Published var selectedAmenityType: AmenitiesEnum?
     @Published var showNoticesSheet: Bool = false
@@ -17,50 +12,12 @@ class DashboardViewModel: ObservableObject {
 
     init(viewContext: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
         self.viewContext = viewContext
-        fetchAll()
-    }
-    
-    func fetchAll() {
         fetchProfile()
-        fetchMaintenances()
-        fetchVisitors()
-        fetchNotices()
-        fetchEvents()
-        fetchAmenities()
     }
 
     func fetchProfile() {
         let request: NSFetchRequest<Profile> = NSFetchRequest(entityName: "Profile")
         profile = try? viewContext.fetch(request).first
-    }
-
-    func fetchMaintenances() {
-        let request: NSFetchRequest<Maintenance> = NSFetchRequest(entityName: "Maintenance")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Maintenance.billMonth, ascending: false)]
-        maintenances = (try? viewContext.fetch(request)) ?? []
-    }
-
-    func fetchVisitors() {
-        let request: NSFetchRequest<Visitor> = NSFetchRequest(entityName: "Visitor")
-        visitors = (try? viewContext.fetch(request)) ?? []
-    }
-
-    func fetchNotices() {
-        let request: NSFetchRequest<Notices> = NSFetchRequest(entityName: "Notices")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Notices.postedDate, ascending: false)]
-        notices = (try? viewContext.fetch(request)) ?? []
-    }
-
-    func fetchEvents() {
-        let request: NSFetchRequest<Events> = NSFetchRequest(entityName: "Events")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Events.startDate, ascending: true)]
-        events = (try? viewContext.fetch(request)) ?? []
-    }
-
-    func fetchAmenities() {
-        let request: NSFetchRequest<Amenities> = NSFetchRequest(entityName: "Amenities")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Amenities.name, ascending: true)]
-        amenities = (try? viewContext.fetch(request)) ?? []
     }
 
     var greeting: String {
@@ -73,19 +30,19 @@ class DashboardViewModel: ObservableObject {
         }
     }
 
-    var unpaidMaintenanceTotal: Int {
+    func unpaidMaintenanceTotal(maintenances: [Maintenance]) -> Int {
         maintenances.filter { !$0.isPaid }.reduce(0) { $0 + Int($1.amount) }
     }
 
-    var insideVisitorsCount: Int {
+    func insideVisitorsCount(visitors: [Visitor]) -> Int {
         visitors.filter { $0.inside }.count
     }
 
-    var openNoticesCount: Int {
+    func openNoticesCount(notices: [Notices]) -> Int {
         notices.filter { !$0.isImportant }.count
     }
 
-    var unpaidMaintenances: [Maintenance] {
+    func unpaidMaintenances(maintenances: [Maintenance]) -> [Maintenance] {
         maintenances.filter { !$0.isPaid }
     }
 }

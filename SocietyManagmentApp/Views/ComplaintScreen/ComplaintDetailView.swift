@@ -13,7 +13,7 @@ struct ComplaintDetailView: View {
 
     @ObservedObject var complaint: Complaint
 
-    @StateObject private var viewModel = ComplaintViewModel()
+    @EnvironmentObject var viewModel: ComplaintViewModel
     @State private var refreshTrigger: Bool = false
 
     private var isResolved: Bool {

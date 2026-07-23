@@ -10,7 +10,7 @@ import CoreData
 
 struct MaintenancePaymentRecordListView: View {
 
-    @StateObject private var viewModel = MaintenanceViewModel()
+    @EnvironmentObject var viewModel: MaintenanceViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,7 +22,7 @@ struct MaintenancePaymentRecordListView: View {
                 }
             } else {
                 ForEach(viewModel.maintenances) { record in
-                    MaintenanceHistoryRow(record: record)
+                    MaintenanceHistoryRow(record: record, profile: viewModel.profile)
                     Divider().padding(.all, 2)
                 }
             }
@@ -32,9 +32,18 @@ struct MaintenancePaymentRecordListView: View {
 
 struct MaintenanceHistoryRow: View {
     @ObservedObject var record: Maintenance
+    var profile: Profile?
 
-    @StateObject private var viewModel = MaintenanceViewModel()
     @State private var showDownloadError = false
+
+    private func statusColor(for status: String?) -> Color {
+        switch status {
+        case "Paid": return .green
+        case "Pending": return .orange
+        case "Overdue": return .red
+        default: return .secondary
+        }
+    }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -45,7 +54,7 @@ struct MaintenanceHistoryRow: View {
                 Text(record.status ?? "Unpaid")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(viewModel.statusColor(for: record.status))
+                    .foregroundColor(statusColor(for: record.status))
             }
 
             Spacer()
@@ -56,7 +65,7 @@ struct MaintenanceHistoryRow: View {
                     .foregroundColor(.primary)
 
                 if record.status == "Paid" {
-                    if let profile = viewModel.profile,
+                    if let profile = profile,
                        let pdfURL = GeneratePdf(maintenance: record, profile: profile) {
                         ShareLink(item: pdfURL) {
                             Label("Receipt", systemImage: "arrow.down.doc")

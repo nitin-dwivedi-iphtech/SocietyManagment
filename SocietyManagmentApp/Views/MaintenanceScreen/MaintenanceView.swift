@@ -10,7 +10,7 @@ import CoreData
 
 struct MaintenanceView: View {
 
-    @StateObject private var viewModel = MaintenanceViewModel()
+    @EnvironmentObject var viewModel: MaintenanceViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -86,9 +86,7 @@ struct MaintenanceView: View {
             NavigationStack {
                 MaintenanceCheckOutView(
                     maintenance: selectedItem,
-                    onPayTap: {
-                        viewModel.fetchMaintenances()
-                    }
+                    onPayTap: {}
                 )
             }
             .presentationDetents([.medium, .large])
