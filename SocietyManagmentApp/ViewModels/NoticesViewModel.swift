@@ -1,21 +1,28 @@
+//
+//  NoticesViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class NoticesViewModel: ObservableObject {
-    @Published var notices: [Notices] = []
-    @Published var events: [Events] = []
-    @Published var selectedNoticeEnum: NoticesEnum = .all
-    @Published var showAddNotice: Bool = false
-    @Published var title: String = ""
-    @Published var description: String = ""
-    @Published var category: NoticesEnum = .general
-    @Published var isImportant: Bool = false
-    @Published var startDate: Date = Date()
-    @Published var endDate: Date = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
-    @Published var showValidation: Bool = false
-    @Published var validationMessage: String = ""
-    @Published var contentType: ContentType = .notice
+@Observable
+class NoticesViewModel{
+    var notices: [Notices] = []
+    var events: [Events] = []
+    var selectedNoticeEnum: NoticesEnum = .all
+    var showAddNotice: Bool = false
+    var title: String = ""
+    var description: String = ""
+    var category: NoticesEnum = .general
+    var isImportant: Bool = false
+    var startDate: Date = Date()
+    var endDate: Date = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
+    var showValidation: Bool = false
+    var validationMessage: String = ""
+    var contentType: ContentType = .notice
 
     enum ContentType: String, CaseIterable, Identifiable {
         case notice = "Notice"
@@ -71,15 +78,14 @@ class NoticesViewModel: ObservableObject {
         filteredNotices.isEmpty && filteredEvents.isEmpty
     }
 
-
     func deleteItem<T: NSManagedObject>(_ item: T) {
         withAnimation {
             viewContext.delete(item)
             viewContext.saveData()
-            if let notice = item as? Notices {
-                notices.removeAll { $0 == notice }
-            } else if let event = item as? Events {
-                events.removeAll { $0 == event }
+            if item is Notices {
+                fetchNotices()
+            } else if item is Events {
+                fetchEvents()
             }
         }
     }
@@ -122,7 +128,7 @@ class NoticesViewModel: ObservableObject {
             )
 
             viewContext.saveData()
-            events.insert(event, at: 0)
+            fetchEvents()
         } else {
             let notice = Notices(context: viewContext)
             notice.id = UUID()
@@ -142,7 +148,7 @@ class NoticesViewModel: ObservableObject {
             )
 
             viewContext.saveData()
-            notices.insert(notice, at: 0)
+            fetchNotices()
         }
 
         resetForm()

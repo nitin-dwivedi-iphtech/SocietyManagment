@@ -10,9 +10,12 @@ import CoreData
 
 struct VisitorView: View {
 
-    @EnvironmentObject var viewModel: VisitorViewModel
+    @Environment(VisitorViewModel.self) var viewModel: VisitorViewModel
+    @State var selectedVisitor:Visitor? = nil
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -66,7 +69,9 @@ struct VisitorView: View {
 
             List {
                 ForEach(viewModel.searchFilteredVisitors) { visitor in
-                    VisitorListView(visitor: visitor)
+                    VisitorListView(visitor: visitor, onTap: {
+                        selectedVisitor = visitor
+                    })
                         .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -98,6 +103,11 @@ struct VisitorView: View {
         }
         .sheet(isPresented: $viewModel.showAddVisitor) {
             AddVisitorView()
+        }
+        .sheet(item: $selectedVisitor) { visitor in
+            NavigationStack{
+                VisitorDetailScreen(visitor: visitor)
+            }
         }
         .navigationBarHidden(true)
     }

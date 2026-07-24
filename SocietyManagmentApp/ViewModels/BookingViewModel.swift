@@ -1,13 +1,20 @@
+//
+//  BookingViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class BookingViewModel: ObservableObject {
-    @Published var bookings: [Bookings] = []
-    @Published var amenities: [Amenities] = []
-    @Published var selectedFilter: Int = 0
-    @Published var selectedBooking: Bookings?
-    @Published var showCancelAlert: Bool = false
+@Observable
+class BookingViewModel{
+    var bookings: [Bookings] = []
+    var amenities: [Amenities] = []
+    var selectedFilter: Int = 0
+    var selectedBooking: Bookings?
+    var showCancelAlert: Bool = false
 
     private let viewContext: NSManagedObjectContext
 
@@ -16,7 +23,6 @@ class BookingViewModel: ObservableObject {
         fetchBookings()
         fetchAmenities()
     }
-
 
     func fetchBookings() {
         let request: NSFetchRequest<Bookings> = NSFetchRequest(entityName: "Bookings")
@@ -62,5 +68,6 @@ class BookingViewModel: ObservableObject {
     func cancelBooking(_ booking: Bookings) {
         booking.isExpired = true
         viewContext.saveData()
+        fetchBookings()
     }
 }

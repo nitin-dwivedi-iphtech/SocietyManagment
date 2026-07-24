@@ -9,19 +9,21 @@ import SwiftUI
 
 
 struct VisitorListView: View {
+    
     @ObservedObject var visitor: Visitor
-    private var statusColor: Color {
-        if visitor.inside {
+    var onTap: ()->Void
+    var statusColor:Color{
+        if visitor.inside && !visitor.exited {
             return .green
-        } else {
-            let arrival = visitor.arrival_time ?? Date()
-            if arrival >= Date() {
-                return .red
-            } else {
-                return Color(.systemGray4)
-            }
+        }
+        else if visitor.exited && !visitor.inside {
+            return .gray
+        }
+        else {
+            return .red
         }
     }
+    
     var body: some View {
         HStack(spacing: 16) {
             Circle()
@@ -92,6 +94,9 @@ struct VisitorListView: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 

@@ -12,9 +12,11 @@ struct NoticesView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var profile: Profile
 
-    @EnvironmentObject var viewModel: NoticesViewModel
+    @Environment(NoticesViewModel.self) var viewModel: NoticesViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         NavigationStack {
             VStack {
                 NoticesHeaderView(onCloseTap: { dismiss() }, onAddTap: { viewModel.showAddNotice = true })

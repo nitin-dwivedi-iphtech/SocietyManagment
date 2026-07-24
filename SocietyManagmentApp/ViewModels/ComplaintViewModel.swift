@@ -1,14 +1,21 @@
+//
+//  ComplaintViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class ComplaintViewModel: ObservableObject {
-    @Published var complaints: [Complaint] = []
-    @Published var searchText: String = ""
-    @Published var selectedPill: ComplaintEnum = .all
-    @Published var showAddComplaint: Bool = false
-    @Published var showComplaintDetail: Bool = false
-    @Published var selectedComplaint: Complaint?
+@Observable
+class ComplaintViewModel{
+    var complaints: [Complaint] = []
+    var searchText: String = ""
+    var selectedPill: ComplaintEnum = .all
+    var showAddComplaint: Bool = false
+    var showComplaintDetail: Bool = false
+    var selectedComplaint: Complaint?
 
     private let viewContext: NSManagedObjectContext
 
@@ -17,13 +24,12 @@ class ComplaintViewModel: ObservableObject {
         fetchComplaints()
     }
 
-
     func fetchComplaints() {
         let request: NSFetchRequest<Complaint> = NSFetchRequest(entityName: "Complaint")
         request.sortDescriptors = []
+        complaints = [] // forcing the ui update
         complaints = (try? viewContext.fetch(request)) ?? []
     }
-
 
     var filteredComplaints: [Complaint] {
         switch selectedPill {
@@ -68,6 +74,7 @@ class ComplaintViewModel: ObservableObject {
             complaint.resolved = true
             complaint.status = "Resolved"
             viewContext.saveData()
+            fetchComplaints()
         }
     }
 
@@ -83,14 +90,14 @@ class ComplaintViewModel: ObservableObject {
             newComplaint.image = url
         }
         viewContext.saveData()
-        complaints.insert(newComplaint, at: 0)
+        fetchComplaints()
     }
 
     func deleteComplaint(_ complaint: Complaint) {
         withAnimation {
             viewContext.delete(complaint)
             viewContext.saveData()
-            complaints.removeAll { $0 == complaint }
+            fetchComplaints()
         }
     }
 

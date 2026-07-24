@@ -10,7 +10,9 @@ import CoreData
 
 struct AmenitiesView: View {
 
-    @EnvironmentObject var viewModel: AmenitiesViewModel
+    @Environment(AmenitiesViewModel.self) var viewModel: AmenitiesViewModel
+
+    var profile: Profile
 
     var body: some View {
         List {
@@ -18,7 +20,7 @@ struct AmenitiesView: View {
                 if let processedAmenities = viewModel.amenities.first(where: {
                     $0.name?.lowercased() == amenity.rawValue.lowercased()
                 }) {
-                    NavigationLink(destination: AmenitiesDetailView(profile: Profile(), amenityType: amenity, loadedAmenity: processedAmenities)) {
+                    NavigationLink(destination: AmenitiesDetailView(profile: profile, amenityType: amenity, loadedAmenity: processedAmenities)) {
                         AmenitiesRow(amenity: amenity)
                     }
                 } else {
@@ -27,8 +29,8 @@ struct AmenitiesView: View {
                 }
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Amenities")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

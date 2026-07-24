@@ -11,9 +11,10 @@ import CoreData
 struct AmenitiesColumnView: View {
     @ObservedObject var profile: Profile
 
-    @EnvironmentObject var viewModel: AmenitiesViewModel
+    @Environment(AmenitiesViewModel.self) var viewModel: AmenitiesViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Amenities")
@@ -49,7 +50,7 @@ struct AmenitiesColumnView: View {
         }
         .sheet(isPresented: $viewModel.showAmenitiesSheet) {
             NavigationStack {
-                AmenitiesView()
+                AmenitiesView(profile: profile)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.hidden)
             }

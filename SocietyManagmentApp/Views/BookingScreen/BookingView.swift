@@ -5,9 +5,11 @@ struct BookingView: View {
 
     @Environment(\.dismiss) var dismiss
 
-    @EnvironmentObject var viewModel: BookingViewModel
+    @Environment(BookingViewModel.self) var viewModel: BookingViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         NavigationStack {
             VStack(spacing: 0) {
 
@@ -49,6 +51,9 @@ struct BookingView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("My Bookings")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                viewModel.fetchBookings()
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -75,7 +80,7 @@ struct BookingView: View {
 
 struct BookingRowItemView: View {
     let booking: Bookings
-    @ObservedObject var viewModel: BookingViewModel
+    var viewModel: BookingViewModel
 
     var lookTap: () -> Void
 

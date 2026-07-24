@@ -13,9 +13,9 @@ struct WelcomeCardView: View {
     var date: Date = Date()
     var userName: String
 
-    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
-    @EnvironmentObject var visitorVM: VisitorViewModel
-    @EnvironmentObject var noticesVM: NoticesViewModel
+    @Environment(MaintenanceViewModel.self) var maintenanceVM: MaintenanceViewModel
+    @Environment(VisitorViewModel.self) var visitorVM: VisitorViewModel
+    @Environment(NoticesViewModel.self) var noticesVM: NoticesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 11) {

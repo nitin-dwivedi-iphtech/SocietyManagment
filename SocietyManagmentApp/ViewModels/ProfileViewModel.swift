@@ -1,10 +1,17 @@
+//
+//  ProfileViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class ProfileViewModel: ObservableObject {
-    @Published var profile: Profile?
-    @Published var showBookingsSheet: Bool = false
+@Observable
+class ProfileViewModel {
+    var profile: Profile?
+    var showBookingsSheet: Bool = false
 
     private let viewContext: NSManagedObjectContext
 

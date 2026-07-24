@@ -10,7 +10,7 @@ import SwiftUI
 struct MaintenanceRowView: View {
 
     @Binding var selectedTabView: Int
-    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
+    @Environment(MaintenanceViewModel.self) var maintenanceVM: MaintenanceViewModel
 
     var unpaidMaintenances: [Maintenance] {
         maintenanceVM.maintenances.filter { !$0.isPaid }

@@ -7,13 +7,15 @@ struct MaintenanceCheckOutView: View {
 
     var onPayTap: () -> Void
 
-    @EnvironmentObject var viewModel: MaintenanceViewModel
+    @Environment(MaintenanceViewModel.self) var viewModel: MaintenanceViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         ScrollView {
             VStack(spacing: 20) {
 
-                MaintenanceCheckOutCardView(maintenance: maintenance, flatNo: "N/A")
+                MaintenanceCheckOutCardView(maintenance: maintenance, flatNo: viewModel.profile?.flat_no ?? "N/A")
                     .padding(.top, 16)
 
                 MaintenanceCustomField(

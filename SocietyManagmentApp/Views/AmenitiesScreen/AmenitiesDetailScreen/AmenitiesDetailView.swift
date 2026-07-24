@@ -14,7 +14,7 @@ struct AmenitiesDetailView: View {
 
     @ObservedObject var profile: Profile
 
-    @EnvironmentObject var viewModel: AmenitiesViewModel
+    @Environment(AmenitiesViewModel.self) var viewModel: AmenitiesViewModel
 
     var amenityType: AmenitiesEnum
     var loadedAmenity: Amenities
@@ -24,6 +24,7 @@ struct AmenitiesDetailView: View {
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         VStack {
             ScrollView {
                 ZStack(alignment: .bottomLeading) {

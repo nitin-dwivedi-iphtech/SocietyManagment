@@ -1,12 +1,19 @@
+//
+//  VisitorViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class VisitorViewModel: ObservableObject {
-    @Published var visitors: [Visitor] = []
-    @Published var searchText: String = ""
-    @Published var selectedPill: VisitorEnum = .all
-    @Published var showAddVisitor: Bool = false
+@Observable
+class VisitorViewModel {
+    var visitors: [Visitor] = [] 
+    var searchText: String = ""
+    var selectedPill: VisitorEnum = .all
+    var showAddVisitor: Bool = false
 
     private let viewContext: NSManagedObjectContext
 
@@ -18,6 +25,7 @@ class VisitorViewModel: ObservableObject {
     func fetchVisitors() {
         let request: NSFetchRequest<Visitor> = NSFetchRequest(entityName: "Visitor")
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Visitor.arrival_time, ascending: false)]
+        visitors = [] // forcing to update ui
         visitors = (try? viewContext.fetch(request)) ?? []
     }
 
@@ -26,11 +34,11 @@ class VisitorViewModel: ObservableObject {
         case .all:
             return visitors
         case .expected:
-            return visitors.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }
+            return visitors.filter { !$0.inside && !$0.exited}
         case .inside:
             return visitors.filter { $0.inside && !$0.exited }
         case .exited:
-            return visitors.filter { !$0.inside && $0.exited && ($0.arrival_time ?? Date()) < Date() }
+            return visitors.filter { !$0.inside && $0.exited }
         }
     }
 
@@ -49,11 +57,11 @@ class VisitorViewModel: ObservableObject {
         case .all:
             return visitors.count
         case .expected:
-            return visitors.filter { !$0.inside && !$0.exited && ($0.arrival_time ?? Date()) >= Date() }.count
+            return visitors.filter { !$0.inside && !$0.exited  }.count
         case .inside:
             return visitors.filter { $0.inside && !$0.exited }.count
         case .exited:
-            return visitors.filter { !$0.inside && $0.exited && ($0.arrival_time ?? Date()) < Date() }.count
+            return visitors.filter { !$0.inside && $0.exited  }.count
         }
     }
 
@@ -63,6 +71,7 @@ class VisitorViewModel: ObservableObject {
             visitor.exited = false
             viewContext.saveData()
         }
+        fetchVisitors()
     }
 
     func markExit(visitor: Visitor) {
@@ -71,6 +80,7 @@ class VisitorViewModel: ObservableObject {
             visitor.exited = true
             viewContext.saveData()
         }
+        fetchVisitors()
     }
 
     func addVisitor(name: String, phone: String, purpose: String, vehicleNo: String, flatNo: String, inside: Bool, address: String, arrivalTime: Date) {
@@ -86,6 +96,6 @@ class VisitorViewModel: ObservableObject {
         visitor.arrival_time = arrivalTime
         visitor.exited = false
         viewContext.saveData()
-        visitors.insert(visitor, at: 0)
+        fetchVisitors()
     }
 }

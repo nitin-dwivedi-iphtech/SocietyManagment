@@ -12,7 +12,7 @@ struct AddVisitorView: View {
     @State var address: String = ""
     @State var arrival_time: Date = Date()
 
-    @EnvironmentObject var viewModel: VisitorViewModel
+    @Environment(VisitorViewModel.self) var viewModel: VisitorViewModel
 
     var body: some View {
         VStack {
@@ -129,7 +129,7 @@ struct VisitorHeaderView: View {
     @Binding var address: String
     @Binding var arrival_time: Date
 
-    @ObservedObject var viewModel: VisitorViewModel
+    var viewModel: VisitorViewModel
 
     var body: some View {
         HStack {

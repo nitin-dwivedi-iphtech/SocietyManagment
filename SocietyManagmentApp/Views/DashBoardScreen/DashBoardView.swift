@@ -11,11 +11,11 @@ import CoreData
 struct DashBoardView: View {
     @Binding var selectedTabView: Int
 
-    @EnvironmentObject var viewModel: DashboardViewModel
-    @EnvironmentObject var maintenanceVM: MaintenanceViewModel
-    @EnvironmentObject var visitorVM: VisitorViewModel
-    @EnvironmentObject var noticesVM: NoticesViewModel
-    @EnvironmentObject var amenitiesVM: AmenitiesViewModel
+    @Environment(DashboardViewModel.self) var viewModel: DashboardViewModel
+    @Environment(MaintenanceViewModel.self) var maintenanceVM: MaintenanceViewModel
+    @Environment(VisitorViewModel.self) var visitorVM: VisitorViewModel
+    @Environment(NoticesViewModel.self) var noticesVM: NoticesViewModel
+    @Environment(AmenitiesViewModel.self) var amenitiesVM: AmenitiesViewModel
 
     var body: some View {
         ScrollView(showsIndicators: false) {

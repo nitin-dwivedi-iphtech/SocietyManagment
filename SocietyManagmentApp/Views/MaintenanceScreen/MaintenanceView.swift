@@ -10,9 +10,11 @@ import CoreData
 
 struct MaintenanceView: View {
 
-    @EnvironmentObject var viewModel: MaintenanceViewModel
+    @Environment(MaintenanceViewModel.self) var viewModel: MaintenanceViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 MaintenanceHeaderView(isPaid: viewModel.isPaymentCompleted)
@@ -28,8 +30,8 @@ struct MaintenanceView: View {
                             ForEach(viewModel.pendingMaintenances, id: \.self) { pendingItem in
                                 MaintenanceCardView(
                                     maintenance: pendingItem,
-                                    flatNo: "N/A",
-                                    ownerName: "N/A",
+                                    flatNo: viewModel.profile?.flat_no ?? "N/A",
+                                    ownerName: viewModel.profile?.name ?? "N/A",
                                     isPaid: .constant(false),
                                     onPayTap: {
                                         viewModel.selectedMaintenanceForPayment = pendingItem
@@ -44,8 +46,8 @@ struct MaintenanceView: View {
                     } else if let paidItem = viewModel.latestPaidMaintenance {
                         MaintenanceCardView(
                             maintenance: paidItem,
-                            flatNo: "N/A",
-                            ownerName: "N/A",
+                            flatNo: viewModel.profile?.flat_no ?? "N/A",
+                            ownerName: (viewModel.profile?.name) ?? "N/A",
                             isPaid: .constant(true),
                             onPayTap: {}
                         )

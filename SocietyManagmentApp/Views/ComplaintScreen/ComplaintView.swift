@@ -11,9 +11,11 @@ import CoreData
 struct ComplaintView: View {
     var profileId: UUID
 
-    @EnvironmentObject var viewModel: ComplaintViewModel
+    @Environment(ComplaintViewModel.self) var viewModel: ComplaintViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {

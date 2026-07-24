@@ -7,7 +7,7 @@ struct BookingDetailView: View {
     var imageIcon: String
 
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var viewModel: BookingViewModel
+    @Environment(BookingViewModel.self) var viewModel: BookingViewModel
     @State private var showCancelAlert = false
 
     private var amenityType: AmenitiesEnum? {
@@ -52,11 +52,11 @@ struct BookingDetailView: View {
                 .padding(.horizontal)
 
                 VStack(spacing: 0) {
-                    DetailRow(icon: "calendar", title: "Date", value: booking.bookingDate?.toMonthYearString() ?? "N/A")
+                    VisitorDetailRow(icon: "calendar", title: "Date", value: booking.bookingDate?.toMonthYearString() ?? "N/A")
                     Divider().padding(.leading, 44)
-                    DetailRow(icon: "clock", title: "Time Slot", value: booking.timeSlot ?? "N/A")
+                    VisitorDetailRow(icon: "clock", title: "Time Slot", value: booking.timeSlot ?? "N/A")
                     Divider().padding(.leading, 44)
-                    DetailRow(
+                    VisitorDetailRow(
                         icon: "info.circle",
                         title: "Status",
                         value: booking.isExpired ? "Expired" : "Active",
@@ -126,7 +126,7 @@ struct BookingDetailView: View {
     }
 }
 
-private struct DetailRow: View {
+private struct VisitorDetailRow: View {
     let icon: String
     let title: String
     let value: String

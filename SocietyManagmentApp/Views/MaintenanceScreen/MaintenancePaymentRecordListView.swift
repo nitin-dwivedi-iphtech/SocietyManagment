@@ -10,7 +10,7 @@ import CoreData
 
 struct MaintenancePaymentRecordListView: View {
 
-    @EnvironmentObject var viewModel: MaintenanceViewModel
+    @Environment(MaintenanceViewModel.self) var viewModel: MaintenanceViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

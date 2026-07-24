@@ -11,7 +11,7 @@ import CoreData
 struct NoticeEventsRowView: View {
     @State var showNoticesView: Bool = false
     @ObservedObject var profile: Profile
-    @EnvironmentObject var noticesVM: NoticesViewModel
+    @Environment(NoticesViewModel.self) var noticesVM: NoticesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -41,7 +41,7 @@ struct NoticeEventsRowView: View {
 
 struct NoticesCardView: View {
     var notices: [Notices]
-
+    @State var selectedNotice:Notices? = nil
     var displayNotices: [Notices] {
         Array(notices.prefix(2))
     }
@@ -55,7 +55,9 @@ struct NoticesCardView: View {
                     .padding()
             } else {
                 ForEach(Array(displayNotices.enumerated()), id: \.element) { index, notice in
-                    NoticeCardRowView(notices: notice)
+                    NoticeCardRowView(notices: notice, onTap: {
+                        selectedNotice = notice
+                    })
 
                     if index < displayNotices.count - 1 {
                         Divider()
@@ -69,11 +71,19 @@ struct NoticesCardView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
+        .sheet(item: $selectedNotice){ notice in
+            NavigationStack{
+                NoticeDetailView(notice: notice)
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
 struct EventsCardView: View {
     var events: [Events]
+    @State var selectedEvents:Events? = nil
 
     var displayEvents: [Events] {
         Array(events.prefix(2))
@@ -88,7 +98,9 @@ struct EventsCardView: View {
                     .padding()
             } else {
                 ForEach(Array(displayEvents.enumerated()), id: \.element) { index, event in
-                    EventsCardRowView(event: event)
+                    EventsCardRowView(event: event, onTap: {
+                        selectedEvents = event
+                    })
 
                     if index < displayEvents.count - 1 {
                         Divider()
@@ -102,12 +114,19 @@ struct EventsCardView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
+        .sheet(item: $selectedEvents){ event in
+            NavigationStack{
+                EventDetailView(event: event)
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
 struct NoticeCardRowView: View {
     var notices: Notices
-
+    var onTap: ()->Void
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: "bell.fill")
@@ -118,7 +137,7 @@ struct NoticeCardRowView: View {
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(notices.body ?? "N/A")
+                Text(notices.title ?? "N/A")
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
@@ -132,12 +151,16 @@ struct NoticeCardRowView: View {
             Spacer()
         }
         .padding(.vertical, 10)
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 
 struct EventsCardRowView: View {
     var event: Events
-
+    var onTap: ()->Void
+    
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: "party.popper.fill")
@@ -148,7 +171,7 @@ struct EventsCardRowView: View {
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(event.details ?? "N/A")
+                Text(event.title ?? "N/A")
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
@@ -162,5 +185,8 @@ struct EventsCardRowView: View {
             Spacer()
         }
         .padding(.vertical, 10)
+        .onTapGesture {
+            onTap()
+        }
     }
 }

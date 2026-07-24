@@ -10,10 +10,8 @@ import CoreData
 
 struct ComplaintDetailView: View {
     @Environment(\.dismiss) private var dismiss
-
     @ObservedObject var complaint: Complaint
-
-    @EnvironmentObject var viewModel: ComplaintViewModel
+    @Environment(ComplaintViewModel.self) var viewModel: ComplaintViewModel
     @State private var refreshTrigger: Bool = false
 
     private var isResolved: Bool {

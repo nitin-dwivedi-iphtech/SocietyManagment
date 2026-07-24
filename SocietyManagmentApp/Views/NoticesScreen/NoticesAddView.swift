@@ -13,9 +13,10 @@ struct NoticesAddView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var profile: Profile
 
-    @EnvironmentObject var viewModel: NoticesViewModel
+    @Environment(NoticesViewModel.self) var viewModel: NoticesViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         NavigationStack {
             Form {
                 Section(header: Text("Type")) {

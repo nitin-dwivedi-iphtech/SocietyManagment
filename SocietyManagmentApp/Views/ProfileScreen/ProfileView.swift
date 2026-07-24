@@ -3,9 +3,11 @@ import CoreData
 
 struct ProfileView: View {
 
-    @EnvironmentObject var viewModel: ProfileViewModel
+    @Environment(ProfileViewModel.self) var viewModel: ProfileViewModel
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+        
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
                 HStack {

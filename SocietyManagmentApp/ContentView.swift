@@ -11,14 +11,14 @@ import CoreData
 struct ContentView: View {
 
     @AppStorage("selectedTheme") private var selectedTheme: Int = 1
-    @StateObject private var dashboardVM = DashboardViewModel()
-    @StateObject private var visitorVM = VisitorViewModel()
-    @StateObject private var complaintVM = ComplaintViewModel()
-    @StateObject private var maintenanceVM = MaintenanceViewModel()
-    @StateObject private var amenitiesVM = AmenitiesViewModel()
-    @StateObject private var noticesVM = NoticesViewModel()
-    @StateObject private var bookingVM = BookingViewModel()
-    @StateObject private var profileVM = ProfileViewModel()
+    private var dashboardVM = DashboardViewModel()
+    private var visitorVM = VisitorViewModel()
+    private var complaintVM = ComplaintViewModel()
+    private var maintenanceVM = MaintenanceViewModel()
+    private var amenitiesVM = AmenitiesViewModel()
+    private var noticesVM = NoticesViewModel()
+    private var bookingVM = BookingViewModel()
+    private var profileVM = ProfileViewModel()
 
     @State var selectedTabView: Int = 2
 
@@ -86,14 +86,17 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(preferredScheme)
-        .environmentObject(dashboardVM)
-        .environmentObject(visitorVM)
-        .environmentObject(complaintVM)
-        .environmentObject(maintenanceVM)
-        .environmentObject(amenitiesVM)
-        .environmentObject(noticesVM)
-        .environmentObject(bookingVM)
-        .environmentObject(profileVM)
+        .environment(dashboardVM)
+        .environment(visitorVM)
+        .environment(complaintVM)
+        .environment(maintenanceVM)
+        .environment(amenitiesVM)
+        .environment(noticesVM)
+        .environment(bookingVM)
+        .environment(profileVM)
+        .onAppear {
+            amenitiesVM.bookingVM = bookingVM
+        }
     }
 }
 

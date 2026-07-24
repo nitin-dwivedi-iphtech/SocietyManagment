@@ -1,16 +1,24 @@
+//
+//  AmenitiesViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class AmenitiesViewModel: ObservableObject {
-    @Published var amenities: [Amenities] = []
-    @Published var activeBookings: [Bookings] = []
-    @Published var selectedDate: Date = Date()
-    @Published var selectedSlot: String?
-    @Published var showAmenitiesSheet: Bool = false
-    @Published var selectedAmenityType: AmenitiesEnum?
+@Observable
+class AmenitiesViewModel{
+    var amenities: [Amenities] = []
+    var activeBookings: [Bookings] = []
+    var selectedDate: Date = Date()
+    var selectedSlot: String?
+    var showAmenitiesSheet: Bool = false
+    var selectedAmenityType: AmenitiesEnum?
 
     private let viewContext: NSManagedObjectContext
+    var bookingVM: BookingViewModel?
 
     init(viewContext: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
         self.viewContext = viewContext
@@ -73,7 +81,8 @@ class AmenitiesViewModel: ObservableObject {
         booking.booking_profile_relation = profile
 
         viewContext.saveData()
-        activeBookings.append(booking)
+        fetchActiveBookings()
+        bookingVM?.fetchBookings()
 
         let amenityName = amenity.name ?? "Amenity"
         let reminderDate = booking.bookingDate?.addingTimeInterval(-10 * 60)

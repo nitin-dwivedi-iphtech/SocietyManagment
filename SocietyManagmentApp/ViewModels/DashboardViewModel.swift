@@ -1,12 +1,19 @@
+//
+//  DashboardViewModel.swift
+//  SocietyManagmentApp
+//
+//  Created by iPHTech 40 on 24/07/26.
+//
+
 import SwiftUI
 import CoreData
-import Combine
 
-class DashboardViewModel: ObservableObject {
-    @Published var profile: Profile?
-    @Published var showAmenitiesSheet: Bool = false
-    @Published var selectedAmenityType: AmenitiesEnum?
-    @Published var showNoticesSheet: Bool = false
+@Observable
+class DashboardViewModel{
+    var profile: Profile?
+    var showAmenitiesSheet: Bool = false
+    var selectedAmenityType: AmenitiesEnum?
+    var showNoticesSheet: Bool = false
 
     private let viewContext: NSManagedObjectContext
 
